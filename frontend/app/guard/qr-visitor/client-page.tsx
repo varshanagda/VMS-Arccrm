@@ -250,7 +250,7 @@ function ReceptionQrVisitorContent() {
     } finally {
       setSubmitting(false);
     }
-  }, [detail, idNumber, photoUrl, policyAccepted, pushToast, router, statusTone]);
+  }, [detail, idNumber, photoUrl, policyAccepted, pushToast, qrCode, router, statusTone]);
 
   if (!user) return null;
 

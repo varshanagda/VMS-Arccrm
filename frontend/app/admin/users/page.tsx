@@ -93,7 +93,7 @@ export default function UserManagementPage() {
         ),
       },
     ],
-    [rows, roleOptions, deptOptions]
+    [roleOptions, deptOptions]
   );
 
   if (!user) return null;

@@ -102,8 +102,8 @@ export default function ReceptionQrCheckinPage() {
         return "border-[var(--border-1)] bg-[var(--surface-2)] text-[var(--text-2)]";
     }
   };
-  const statusLabel = (status: string) => status.replace(/_/g, " ");
-  const statusOptions = ["approved", "pending", "rejected", "checked_in", "checked_out"];
+  const statusLabel = useCallback((status: string) => status.replace(/_/g, " "), []);
+  const statusOptions = useMemo(() => ["approved", "pending", "rejected", "checked_in", "checked_out"], []);
   const [idCardLoading, setIdCardLoading] = useState(false);
   const [availableCards, setAvailableCards] = useState<AvailableIdCard[]>([]);
   const [resendLoading, setResendLoading] = useState<Record<number, boolean>>({});
@@ -537,7 +537,7 @@ export default function ReceptionQrCheckinPage() {
         },
       },
     ],
-    [handleLoadVisit, handleResendApprovalEmail, resendLoading]
+    [handleLoadVisit, handleResendApprovalEmail, resendLoading, statusLabel, statusOptions]
   );
 
   useEffect(() => {

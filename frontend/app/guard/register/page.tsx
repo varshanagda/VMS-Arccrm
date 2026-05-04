@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Panel } from "@/components/dashboard/panels";
@@ -60,6 +60,14 @@ function StepIndicator({ stepIndex, current }: { stepIndex: number; current: num
 }
 
 export default function ReceptionRegisterPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-sm text-[var(--text-3)]">Loading...</div>}>
+      <ReceptionRegisterContent />
+    </Suspense>
+  );
+}
+
+function ReceptionRegisterContent() {
   const user = useAuthGuard({ allowedRoles: ["guard", "admin", "superadmin"] });
   const router = useRouter();
   const searchParams = useSearchParams();

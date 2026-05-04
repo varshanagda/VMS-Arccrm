@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 import { Panel } from "@/components/dashboard/panels";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -31,12 +31,7 @@ export default function ManualCheckoutPage() {
   const [history, setHistory] = useState<VisitHistoryItem[]>([]);
   const [checkoutCandidate, setCheckoutCandidate] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    void loadHistory();
-  }, [user]);
-
-  async function loadHistory() {
+  const loadHistory = useCallback(async () => {
     setLoading(true);
     try {
       const data = await apiFetch<VisitHistoryItem[]>("/visit/history");
@@ -50,7 +45,12 @@ export default function ManualCheckoutPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [pushToast]);
+
+  useEffect(() => {
+    if (!user) return;
+    void loadHistory();
+  }, [user, loadHistory]);
 
   async function submitCheckout(idNumber: string) {
     setLoading(true);
