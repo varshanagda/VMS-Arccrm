@@ -237,44 +237,45 @@ export default function ReceptionRegisterPage() {
           <div className="mt-6">
             {step === 0 ? (
               <div className="grid gap-4 md:grid-cols-2">
-                <label className="text-sm text-[var(--text-2)]">
-                  Visitor Name
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm text-[var(--text-2)]">Visitor Name</label>
                   <input
-                    className="mt-2 w-full rounded-lg border border-[var(--border-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)]"
+                    className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     value={register.name}
                     onChange={(e) => setRegister((prev) => ({ ...prev, name: e.target.value }))}
                   />
                   {formErrors.name ? <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.name}</p> : null}
-                </label>
-                <label className="text-sm text-[var(--text-2)]">
-                  Phone
+                </div>
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm text-[var(--text-2)]">Phone</label>
                   <input
-                    className="mt-2 w-full rounded-lg border border-[var(--border-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)]"
+                    className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     value={register.phone}
                     onChange={(e) => setRegister((prev) => ({ ...prev, phone: e.target.value }))}
                   />
                   {formErrors.phone ? <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.phone}</p> : null}
-                </label>
-                <label className="text-sm text-[var(--text-2)]">
-                  Email
+                </div>
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm text-[var(--text-2)]">Email</label>
                   <input
-                    className="mt-2 w-full rounded-lg border border-[var(--border-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)]"
+                    className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     value={register.email}
                     onChange={(e) => setRegister((prev) => ({ ...prev, email: e.target.value }))}
                   />
                   {formErrors.email ? <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.email}</p> : null}
-                </label>
-                <label className="text-sm text-[var(--text-2)]">
-                  Company
+                </div>
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm text-[var(--text-2)]">Company</label>
                   <input
-                    className="mt-2 w-full rounded-lg border border-[var(--border-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)]"
+                    className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     value={register.company}
                     onChange={(e) => setRegister((prev) => ({ ...prev, company: e.target.value }))}
                   />
-                </label>
-                <label className="text-sm text-[var(--text-2)]">
-                  Visitor Type
+                </div>
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm text-[var(--text-2)]">Visitor Type</label>
                   <CustomSelect
+                    className="h-11 w-full m-0"
                     options={["Guest", "Vendor", "Contractor", "Interview", "Delivery", "Custom"].map(opt => ({ value: opt, label: opt }))}
                     value={visitorTypeOption}
                     onChange={(value) => {
@@ -287,12 +288,12 @@ export default function ReceptionRegisterPage() {
                       }
                     }}
                   />
-                </label>
+                </div>
                 {visitorTypeOption === "Custom" ? (
-                  <label className="text-sm text-[var(--text-2)]">
-                    Custom Visitor Type
+                  <div className="flex flex-col">
+                    <label className="mb-2 text-sm text-[var(--text-2)]">Custom Visitor Type</label>
                     <input
-                      className="mt-2 w-full rounded-lg border border-[var(--border-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)]"
+                      className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                       value={customVisitorType}
                       onChange={(e) => {
                         const value = e.target.value;
@@ -301,11 +302,12 @@ export default function ReceptionRegisterPage() {
                       }}
                       placeholder="Enter visitor type"
                     />
-                  </label>
+                  </div>
                 ) : null}
-                <label className="text-sm text-[var(--text-2)]">
-                  Purpose
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm text-[var(--text-2)]">Purpose</label>
                   <CustomSelect
+                    className="h-11 w-full m-0"
                     options={["Meeting", "Interview", "Delivery", "Maintenance", "Vendor", "Custom"].map(opt => ({ value: opt, label: opt }))}
                     value={purposeOption}
                     onChange={(value) => {
@@ -319,12 +321,12 @@ export default function ReceptionRegisterPage() {
                     }}
                   />
                   {formErrors.purpose ? <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.purpose}</p> : null}
-                </label>
+                </div>
                 {purposeOption === "Custom" ? (
-                  <label className="text-sm text-[var(--text-2)] md:col-span-2">
-                    Custom Purpose
+                  <div className="flex flex-col md:col-span-2">
+                    <label className="mb-2 text-sm text-[var(--text-2)]">Custom Purpose</label>
                     <input
-                      className="mt-2 w-full rounded-lg border border-[var(--border-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)]"
+                      className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                       value={customPurpose}
                       onChange={(e) => {
                         const value = e.target.value;
@@ -333,35 +335,35 @@ export default function ReceptionRegisterPage() {
                       }}
                       placeholder="Enter purpose"
                     />
-                  </label>
+                  </div>
                 ) : null}
 
-                <label className="text-sm text-[var(--text-2)]">
-                  Valid From
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm text-[var(--text-2)]">Valid From</label>
                   <input
                     type="datetime-local"
-                    className="mt-2 w-full rounded-lg border border-[var(--border-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--text-1)]"
+                    className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     value={register.valid_from}
                     onChange={(e) => setRegister((prev) => ({ ...prev, valid_from: e.target.value }))}
                   />
                   {formErrors.valid_from ? <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.valid_from}</p> : null}
-                </label>
-                <label className="text-sm text-[var(--text-2)]">
-                  Valid To
+                </div>
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm text-[var(--text-2)]">Valid To</label>
                   <input
                     type="datetime-local"
-                    className="mt-2 w-full rounded-lg border border-[var(--border-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--text-1)]"
+                    className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     value={register.valid_to}
                     onChange={(e) => setRegister((prev) => ({ ...prev, valid_to: e.target.value }))}
                   />
                   {formErrors.valid_to ? <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.valid_to}</p> : null}
-                </label>
+                </div>
 
-                <div className="md:col-span-2 flex justify-end">
+                <div className="md:col-span-2 flex justify-end mt-2">
                   <button
                     type="button"
                     onClick={goNext}
-                    className="rounded-lg bg-[var(--accent)] px-6 py-2 text-sm font-semibold text-[var(--accent-fg)] shadow-sm transition hover:brightness-95"
+                    className="rounded-lg bg-[var(--accent)] px-6 py-2 h-11 text-sm font-semibold text-[var(--accent-fg)] shadow-sm transition hover:brightness-95 flex items-center box-border"
                   >
                     Next →
                   </button>

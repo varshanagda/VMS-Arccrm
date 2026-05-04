@@ -326,9 +326,10 @@ function ReceptionQrVisitorContent() {
             <div className="space-y-5">
               <PhotoCapture value={photoUrl} onChange={setPhotoUrl} />
 
-              <label className="block text-sm text-[var(--text-2)]">
-                ID Card
+              <div className="flex flex-col">
+                <label className="mb-2 text-sm text-[var(--text-2)]">ID Card</label>
                 <CustomSelect
+                  className="h-11 w-full m-0"
                   options={[
                     { value: "", label: idCardLoading ? "Loading ID cards..." : "Select ID card" },
                     ...availableCards.map(card => ({ value: card.id_number, label: card.id_number })),
@@ -346,13 +347,13 @@ function ReceptionQrVisitorContent() {
                     setIdNumber(value);
                   }}
                 />
-              </label>
+              </div>
 
               {idCardSelection === "__custom__" ? (
-                <label className="block text-sm text-[var(--text-2)]">
-                  Custom ID Card Number
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm text-[var(--text-2)]">Custom ID Card Number</label>
                   <input
-                    className="mt-2 w-full rounded-lg border border-[var(--border-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+                    className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     placeholder="Enter ID card number"
                     value={customIdNumber}
                     onChange={(e) => {
@@ -361,7 +362,7 @@ function ReceptionQrVisitorContent() {
                       setIdNumber(value);
                     }}
                   />
-                </label>
+                </div>
               ) : null}
 
               <label className="flex items-center gap-2 text-sm text-[var(--text-2)]">
