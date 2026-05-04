@@ -47,19 +47,13 @@ export default function UserManagementPage() {
   }, [user]);
 
   const roleOptions = useMemo(
-    () =>
-      Array.from(
-        new Set(rows.map((r) => r.role).filter(Boolean)),
-      ).sort() as string[],
-    [rows],
+    () => Array.from(new Set(rows.map((r) => r.role).filter(Boolean))).sort() as string[],
+    [rows]
   );
 
   const deptOptions = useMemo(
-    () =>
-      Array.from(
-        new Set(rows.map((r) => r.department ?? "General").filter(Boolean)),
-      ).sort() as string[],
-    [rows],
+    () => Array.from(new Set(rows.map((r) => r.department ?? "General").filter(Boolean))).sort() as string[],
+    [rows]
   );
 
   const columns: GridColDef<EmployeeRow>[] = useMemo(
@@ -71,9 +65,7 @@ export default function UserManagementPage() {
         minWidth: 160,
         filterable: true,
         renderCell: (params: GridRenderCellParams<EmployeeRow>) => (
-          <span className="block truncate font-medium">
-            {String(params.row.name ?? "-")}
-          </span>
+          <span className="block truncate font-medium">{String(params.row.name ?? "-")}</span>
         ),
       },
       {
@@ -101,7 +93,7 @@ export default function UserManagementPage() {
         ),
       },
     ],
-    [rows, roleOptions, deptOptions],
+    [roleOptions, deptOptions]
   );
 
   if (!user) return null;
