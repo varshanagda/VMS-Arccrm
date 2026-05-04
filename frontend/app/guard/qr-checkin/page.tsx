@@ -1,6 +1,13 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { Panel } from "@/components/dashboard/panels";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -58,7 +65,8 @@ function areAvailableCardsEqual(a: AvailableIdCard[], b: AvailableIdCard[]) {
   for (let i = 0; i < a.length; i++) {
     const left = a[i];
     const right = b[i];
-    if (left.id !== right.id || left.id_number !== right.id_number) return false;
+    if (left.id !== right.id || left.id_number !== right.id_number)
+      return false;
   }
   return true;
 }
@@ -75,7 +83,9 @@ export default function ReceptionQrCheckinPage() {
 
   const [message, setMessage] = useState<string>("");
   const [visitorStatus, setVisitorStatus] = useState<string>("");
-  const [resolvedVisitorId, setResolvedVisitorId] = useState<number | null>(null);
+  const [resolvedVisitorId, setResolvedVisitorId] = useState<number | null>(
+    null,
+  );
   const [visitorDetail, setVisitorDetail] = useState<{
     name: string;
     phone?: string;
@@ -102,11 +112,19 @@ export default function ReceptionQrCheckinPage() {
         return "border-[var(--border-1)] bg-[var(--surface-2)] text-[var(--text-2)]";
     }
   };
-  const statusLabel = useCallback((status: string) => status.replace(/_/g, " "), []);
-  const statusOptions = useMemo(() => ["approved", "pending", "rejected", "checked_in", "checked_out"], []);
+  const statusLabel = (status: string) => status.replace(/_/g, " ");
+  const statusOptions = [
+    "approved",
+    "pending",
+    "rejected",
+    "checked_in",
+    "checked_out",
+  ];
   const [idCardLoading, setIdCardLoading] = useState(false);
   const [availableCards, setAvailableCards] = useState<AvailableIdCard[]>([]);
-  const [resendLoading, setResendLoading] = useState<Record<number, boolean>>({});
+  const [resendLoading, setResendLoading] = useState<Record<number, boolean>>(
+    {},
+  );
   const [loading, setLoading] = useState(false);
 
   const cardFetchInFlightRef = useRef(false);
@@ -146,13 +164,18 @@ export default function ReceptionQrCheckinPage() {
           });
           statusMapRef.current = nextMap;
         } else {
-          statusMapRef.current = next.reduce<Record<number, string>>((acc, visit) => {
-            acc[visit.visit_id] = visit.status;
-            return acc;
-          }, {});
+          statusMapRef.current = next.reduce<Record<number, string>>(
+            (acc, visit) => {
+              acc[visit.visit_id] = visit.status;
+              return acc;
+            },
+            {},
+          );
           statusMapReadyRef.current = true;
         }
-        setVisitList((prev) => (areVisitStatusListsEqual(prev, next) ? prev : next));
+        setVisitList((prev) =>
+          areVisitStatusListsEqual(prev, next) ? prev : next,
+        );
         if (showToast) {
           pushToast({
             title: "Status refreshed",
@@ -163,31 +186,48 @@ export default function ReceptionQrCheckinPage() {
       } catch (err) {
         if (showToast) {
           const errorMessage =
-            err instanceof Error ? err.message : typeof err === "string" ? err : "Failed to load visitors";
-          pushToast({ title: "Failed to refresh", description: errorMessage, variant: "error" });
+            err instanceof Error
+              ? err.message
+              : typeof err === "string"
+                ? err
+                : "Failed to load visitors";
+          pushToast({
+            title: "Failed to refresh",
+            description: errorMessage,
+            variant: "error",
+          });
         }
       } finally {
         if (showLoading) setListLoading(false);
       }
     },
-    [pushToast]
+    [pushToast],
   );
 
   const fetchAvailableCards = useCallback(
-    async (options: { showToast?: boolean; showLoading?: boolean; force?: boolean } = {}) => {
+    async (
+      options: {
+        showToast?: boolean;
+        showLoading?: boolean;
+        force?: boolean;
+      } = {},
+    ) => {
       const showToast = options.showToast ?? false;
       const showLoading = options.showLoading ?? showToast;
       const force = options.force ?? false;
 
       if (cardFetchInFlightRef.current) return;
-      if (!force && cardsLoadedRef.current && !showToast && !showLoading) return;
+      if (!force && cardsLoadedRef.current && !showToast && !showLoading)
+        return;
 
       cardFetchInFlightRef.current = true;
       if (showLoading) setIdCardLoading(true);
       try {
         const data = await apiFetch<AvailableIdCard[]>("/id-cards/available");
         const next = data ?? [];
-        setAvailableCards((prev) => (areAvailableCardsEqual(prev, next) ? prev : next));
+        setAvailableCards((prev) =>
+          areAvailableCardsEqual(prev, next) ? prev : next,
+        );
         cardsLoadedRef.current = true;
 
         if (showToast) {
@@ -200,15 +240,23 @@ export default function ReceptionQrCheckinPage() {
       } catch (err) {
         if (showToast) {
           const errorMessage =
-            err instanceof Error ? err.message : typeof err === "string" ? err : "Failed to load ID cards";
-          pushToast({ title: "Failed to refresh", description: errorMessage, variant: "error" });
+            err instanceof Error
+              ? err.message
+              : typeof err === "string"
+                ? err
+                : "Failed to load ID cards";
+          pushToast({
+            title: "Failed to refresh",
+            description: errorMessage,
+            variant: "error",
+          });
         }
       } finally {
         cardFetchInFlightRef.current = false;
         if (showLoading) setIdCardLoading(false);
       }
     },
-    [pushToast]
+    [pushToast],
   );
 
   const handleRefresh = useCallback(async () => {
@@ -220,12 +268,17 @@ export default function ReceptionQrCheckinPage() {
 
   const handleResendApprovalEmail = useCallback(
     async (visitId: number) => {
-      setResendLoading((prev) => (prev[visitId] ? prev : { ...prev, [visitId]: true }));
+      setResendLoading((prev) =>
+        prev[visitId] ? prev : { ...prev, [visitId]: true },
+      );
       try {
-        const result = await apiFetch<{ sent: boolean }>("/visitor/resend-approval", {
-          method: "POST",
-          body: JSON.stringify({ visit_id: visitId }),
-        });
+        const result = await apiFetch<{ sent: boolean }>(
+          "/visitor/resend-approval",
+          {
+            method: "POST",
+            body: JSON.stringify({ visit_id: visitId }),
+          },
+        );
 
         if (result?.sent) {
           pushToast({
@@ -244,8 +297,16 @@ export default function ReceptionQrCheckinPage() {
         });
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : typeof err === "string" ? err : "Failed to resend approval email";
-        pushToast({ title: "Email not sent", description: errorMessage, variant: "error" });
+          err instanceof Error
+            ? err.message
+            : typeof err === "string"
+              ? err
+              : "Failed to resend approval email";
+        pushToast({
+          title: "Email not sent",
+          description: errorMessage,
+          variant: "error",
+        });
       } finally {
         setResendLoading((prev) => {
           if (!prev[visitId]) return prev;
@@ -255,7 +316,7 @@ export default function ReceptionQrCheckinPage() {
         });
       }
     },
-    [fetchVisitList, pushToast]
+    [fetchVisitList, pushToast],
   );
 
   const handleLoadVisit = useCallback((visit: VisitStatusRow) => {
@@ -278,7 +339,11 @@ export default function ReceptionQrCheckinPage() {
     if (!idNumber.trim()) {
       const msg = "Select an ID card number.";
       setMessage(msg);
-      pushToast({ title: "ID card required", description: msg, variant: "error" });
+      pushToast({
+        title: "ID card required",
+        description: msg,
+        variant: "error",
+      });
       return;
     }
     setLoading(true);
@@ -308,7 +373,8 @@ export default function ReceptionQrCheckinPage() {
       void fetchAvailableCards();
       void fetchVisitList();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "QR check-in failed";
+      const errorMessage =
+        err instanceof Error ? err.message : "QR check-in failed";
       setMessage(errorMessage);
       pushToast({
         title: "Check-in failed",
@@ -328,7 +394,9 @@ export default function ReceptionQrCheckinPage() {
       if (showToast) setMessage("");
       if (showLoading) setLoading(true);
       try {
-        const data = await apiFetch<VisitStatusResult>(`/visits/status?code=${encodeURIComponent(qrCode)}`);
+        const data = await apiFetch<VisitStatusResult>(
+          `/visits/status?code=${encodeURIComponent(qrCode)}`,
+        );
         setVisitorDetail((prev) => {
           const next = {
             name: data.visitor_name,
@@ -337,33 +405,61 @@ export default function ReceptionQrCheckinPage() {
             status: data.status,
           };
           if (!prev) return next;
-          return prev.name === next.name && prev.company === next.company && prev.status === next.status ? prev : next;
+          return prev.name === next.name &&
+            prev.company === next.company &&
+            prev.status === next.status
+            ? prev
+            : next;
         });
-        setVisitorStatus((prev) => (prev === (data.status ?? "") ? prev : data.status ?? ""));
-        setResolvedVisitorId((prev) => (prev === data.visitor_id ? prev : data.visitor_id));
+        setVisitorStatus((prev) =>
+          prev === (data.status ?? "") ? prev : (data.status ?? ""),
+        );
+        setResolvedVisitorId((prev) =>
+          prev === data.visitor_id ? prev : data.visitor_id,
+        );
         if (showToast) {
           if (data.status === "approved") {
-            pushToast({ title: "Approved by host", description: "You can check-in this visitor.", variant: "success" });
+            pushToast({
+              title: "Approved by host",
+              description: "You can check-in this visitor.",
+              variant: "success",
+            });
           } else if (data.status === "rejected") {
-            pushToast({ title: "Rejected by host", description: "Do not proceed with check-in.", variant: "error" });
+            pushToast({
+              title: "Rejected by host",
+              description: "Do not proceed with check-in.",
+              variant: "error",
+            });
           } else {
-            pushToast({ title: "Pending approval", description: "Wait for host response.", variant: "info" });
+            pushToast({
+              title: "Pending approval",
+              description: "Wait for host response.",
+              variant: "info",
+            });
           }
         }
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : typeof err === "string" ? err : "Failed to fetch status";
+          err instanceof Error
+            ? err.message
+            : typeof err === "string"
+              ? err
+              : "Failed to fetch status";
         if (showToast) {
           setMessage(errorMessage);
           setVisitorDetail(null);
           setVisitorStatus("");
-          pushToast({ title: "Status check failed", description: errorMessage, variant: "error" });
+          pushToast({
+            title: "Status check failed",
+            description: errorMessage,
+            variant: "error",
+          });
         }
       } finally {
         if (showLoading) setLoading(false);
       }
     },
-    [pushToast, qrCode]
+    [pushToast, qrCode],
   );
 
   const visitRows = useMemo(() => {
@@ -371,7 +467,9 @@ export default function ReceptionQrCheckinPage() {
       .sort((a, b) => b.visit_id - a.visit_id)
       .map((visit) => {
         const emailSent = visit.approval_email_sent === true;
-        const emailNotSent = visit.approval_email_sent === false || Boolean(visit.approval_email_error);
+        const emailNotSent =
+          visit.approval_email_sent === false ||
+          Boolean(visit.approval_email_error);
         const emailStatus = emailSent
           ? "Email sent"
           : emailNotSent
@@ -391,14 +489,17 @@ export default function ReceptionQrCheckinPage() {
             visitWithAliases.host_employee_name ??
             visitWithAliases.host?.name ??
             "",
-          visitor_name: visitWithAliases.visitor_name ?? visitWithAliases.visitorName ?? "",
+          visitor_name:
+            visitWithAliases.visitor_name ?? visitWithAliases.visitorName ?? "",
           status_label: statusLabel(visit.status),
           email_status: emailStatus,
         };
       });
   }, [visitList, statusLabel]);
 
-  const visitColumns: GridColDef<VisitStatusRow & { status_label?: string; email_status?: string }>[] = useMemo(
+  const visitColumns: GridColDef<
+    VisitStatusRow & { status_label?: string; email_status?: string }
+  >[] = useMemo(
     () => [
       {
         field: "visitor_name",
@@ -408,14 +509,20 @@ export default function ReceptionQrCheckinPage() {
         minWidth: 170,
         filterable: true,
         valueGetter: (params: { row: VisitStatusRow }) => {
-          const row = params?.row as VisitStatusRow & { visitorName?: string | null };
+          const row = params?.row as VisitStatusRow & {
+            visitorName?: string | null;
+          };
           const value = row?.visitor_name ?? row?.visitorName ?? "";
-          return String(value ?? "").trim().toLowerCase();
+          return String(value ?? "")
+            .trim()
+            .toLowerCase();
         },
         getQuickFilterText: (params: { value?: unknown }) =>
           String(params?.value ?? "").toLowerCase(),
         renderCell: (params: GridRenderCellParams<VisitStatusRow>) => (
-          <p className="font-semibold text-[var(--text-1)]">{params.row.visitor_name}</p>
+          <p className="font-semibold text-[var(--text-1)]">
+            {params.row.visitor_name}
+          </p>
         ),
       },
       {
@@ -437,16 +544,22 @@ export default function ReceptionQrCheckinPage() {
             row?.host_employee_name ??
             row?.host?.name ??
             "";
-          return String(value ?? "").trim().toLowerCase();
+          return String(value ?? "")
+            .trim()
+            .toLowerCase();
         },
         valueFormatter: (_value, row) =>
           String((row as VisitStatusRow | undefined)?.host_name ?? "Unknown"),
         getApplyQuickFilterFn: (value) => {
           if (!value || !value.trim()) return null;
           const search = value.toLowerCase();
-          return (params) => String(params?.row?.host_name ?? "Unknown").toLowerCase().includes(search);
+          return (params) =>
+            String(params?.row?.host_name ?? "Unknown")
+              .toLowerCase()
+              .includes(search);
         },
-        getQuickFilterText: (params: { value?: unknown }) => String(params?.value ?? "").toLowerCase(),
+        getQuickFilterText: (params: { value?: unknown }) =>
+          String(params?.value ?? "").toLowerCase(),
         renderCell: (params: GridRenderCellParams<VisitStatusRow>) => (
           <span>{params?.row?.host_name ?? "Unknown"}</span>
         ),
@@ -459,9 +572,10 @@ export default function ReceptionQrCheckinPage() {
         flex: 1,
         minWidth: 200,
         filterable: true,
-        valueFormatter: (value) =>
-          statusLabel(String(value ?? "")),
-        getQuickFilterText: (params: { row?: VisitStatusRow & { status_label?: string } }) => {
+        valueFormatter: (value) => statusLabel(String(value ?? "")),
+        getQuickFilterText: (params: {
+          row?: VisitStatusRow & { status_label?: string };
+        }) => {
           const row = params?.row as VisitStatusRow & { status_label?: string };
           const raw = row?.status ?? "";
           const label = row?.status_label ?? "";
@@ -471,7 +585,9 @@ export default function ReceptionQrCheckinPage() {
           const row = params.row as VisitStatusRow & { email_status?: string };
           return (
             <div className="flex flex-col gap-1 py-2">
-              <span className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold ${statusBadgeClass(row.status)}`}>
+              <span
+                className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold ${statusBadgeClass(row.status)}`}
+              >
                 {statusLabel(row.status)}
               </span>
             </div>
@@ -484,7 +600,8 @@ export default function ReceptionQrCheckinPage() {
         flex: 1,
         minWidth: 180,
         filterable: false,
-        valueGetter: (params: { row: VisitStatusRow }) => params?.row?.email_status ?? "-",
+        valueGetter: (params: { row: VisitStatusRow }) =>
+          params?.row?.email_status ?? "-",
       },
       {
         field: "created_at",
@@ -492,11 +609,16 @@ export default function ReceptionQrCheckinPage() {
         flex: 1,
         minWidth: 180,
         filterable: true,
-        valueGetter: (params: { row: VisitStatusRow }) => params?.row?.created_at ?? null,
+        valueGetter: (params: { row: VisitStatusRow }) =>
+          params?.row?.created_at ?? null,
         valueFormatter: (value) =>
           value ? new Date(value as string).toLocaleDateString() : "-",
         renderCell: (params: GridRenderCellParams<VisitStatusRow>) => (
-          <span>{params?.row?.created_at ? new Date(params.row.created_at).toLocaleDateString() : "-"}</span>
+          <span>
+            {params?.row?.created_at
+              ? new Date(params.row.created_at).toLocaleDateString()
+              : "-"}
+          </span>
         ),
       },
       {
@@ -517,7 +639,11 @@ export default function ReceptionQrCheckinPage() {
               <button
                 type="button"
                 onClick={() => handleLoadVisit(row)}
-                disabled={row.status === "checked_in" || row.status === "checked_out" || row.status === "auto_checked_out"}
+                disabled={
+                  row.status === "checked_in" ||
+                  row.status === "checked_out" ||
+                  row.status === "auto_checked_out"
+                }
                 className="rounded-md border border-[var(--border-1)] bg-transparent px-3 py-1.5 text-xs font-semibold text-[var(--text-2)] transition hover:bg-[var(--surface-2)] hover:text-[var(--text-1)] disabled:opacity-60"
               >
                 Load
@@ -537,7 +663,7 @@ export default function ReceptionQrCheckinPage() {
         },
       },
     ],
-    [handleLoadVisit, handleResendApprovalEmail, resendLoading, statusLabel, statusOptions]
+    [handleLoadVisit, handleResendApprovalEmail, resendLoading],
   );
 
   useEffect(() => {
@@ -550,7 +676,9 @@ export default function ReceptionQrCheckinPage() {
     const token = getAccessToken();
     if (!token) return;
     const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8005";
-    const source = new EventSource(`${baseUrl}/events/visits?token=${encodeURIComponent(token)}`);
+    const source = new EventSource(
+      `${baseUrl}/events/visits?token=${encodeURIComponent(token)}`,
+    );
     source.onmessage = () => {
       void fetchVisitList();
     };
@@ -579,17 +707,24 @@ export default function ReceptionQrCheckinPage() {
       void fetchVisitList();
     };
     window.addEventListener("visitor-status-updated", handleUpdate);
-    return () => window.removeEventListener("visitor-status-updated", handleUpdate);
+    return () =>
+      window.removeEventListener("visitor-status-updated", handleUpdate);
   }, [fetchVisitList]);
 
   if (!user) return null;
 
   return (
     <DashboardLayout user={user}>
-      <DashboardPageHeader title="Check-in" subtitle="Scan or paste a QR code to complete a check-in." />
+      <DashboardPageHeader
+        title="Check-in"
+        subtitle="Scan or paste a QR code to complete a check-in."
+      />
       <div className="space-y-6">
         <Panel title="Check-in">
-          <form className="flex flex-col sm:flex-row sm:items-center gap-4" onSubmit={handleQrCheckin}>
+          <form
+            className="flex flex-col sm:flex-row sm:items-center gap-4"
+            onSubmit={handleQrCheckin}
+          >
             <input
               className="flex-1 w-full sm:w-auto h-11 rounded-lg border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)] outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
               placeholder="Visitor ID / phone / email / QR code"
@@ -601,9 +736,17 @@ export default function ReceptionQrCheckinPage() {
               <CustomSelect
                 className="h-11 m-0 w-full"
                 options={[
-                  { value: "", label: idCardLoading ? "Loading ID cards..." : "Select ID card" },
-                  ...availableCards.map(card => ({ value: card.id_number, label: card.id_number })),
-                  { value: "__custom__", label: "Custom" }
+                  {
+                    value: "",
+                    label: idCardLoading
+                      ? "Loading ID cards..."
+                      : "Select ID card",
+                  },
+                  ...availableCards.map((card) => ({
+                    value: card.id_number,
+                    label: card.id_number,
+                  })),
+                  { value: "__custom__", label: "Custom" },
                 ]}
                 value={idCardSelection}
                 onChange={(value) => {
@@ -633,7 +776,9 @@ export default function ReceptionQrCheckinPage() {
             ) : null}
             <button
               type="button"
-              onClick={() => handleStatusCheck({ showToast: true, showLoading: true })}
+              onClick={() =>
+                handleStatusCheck({ showToast: true, showLoading: true })
+              }
               disabled={loading}
               className="h-11 flex items-center justify-center shrink-0 whitespace-nowrap rounded-lg border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm font-semibold text-[var(--text-1)] transition hover:bg-[var(--surface-3)] disabled:opacity-60 box-border leading-none"
             >
@@ -662,11 +807,19 @@ export default function ReceptionQrCheckinPage() {
             <div className="mt-4 rounded-xl border border-[var(--border-1)] bg-[var(--surface-2)] p-4 text-sm text-[var(--text-2)]">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-3)]">Host Response</p>
-                  <p className="mt-1 text-base font-semibold text-[var(--text-1)]">{visitorDetail.name}</p>
-                  <p className="text-xs text-[var(--text-3)]">Host: {visitorDetail.company ?? "Unknown"}</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-3)]">
+                    Host Response
+                  </p>
+                  <p className="mt-1 text-base font-semibold text-[var(--text-1)]">
+                    {visitorDetail.name}
+                  </p>
+                  <p className="text-xs text-[var(--text-3)]">
+                    Host: {visitorDetail.company ?? "Unknown"}
+                  </p>
                 </div>
-                <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusBadgeClass(visitorStatus)}`}>
+                <span
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusBadgeClass(visitorStatus)}`}
+                >
                   {visitorStatus === "approved"
                     ? "Approved by Host"
                     : visitorStatus === "rejected"
@@ -675,11 +828,15 @@ export default function ReceptionQrCheckinPage() {
                 </span>
               </div>
               {visitorStatus === "rejected" ? (
-                <p className="mt-3 text-xs text-red-300">This visit has been rejected by the host.</p>
+                <p className="mt-3 text-xs text-red-300">
+                  This visit has been rejected by the host.
+                </p>
               ) : null}
             </div>
           ) : null}
-          {message ? <p className="mt-3 text-sm text-[var(--text-2)]">{message}</p> : null}
+          {message ? (
+            <p className="mt-3 text-sm text-[var(--text-2)]">{message}</p>
+          ) : null}
         </Panel>
 
         <Panel
@@ -705,10 +862,14 @@ export default function ReceptionQrCheckinPage() {
             searchPlaceholder="Search visitor, host, status..."
             rowHeight={76}
             initialState={{
-              columns: { columnVisibilityModel: { host_name: true, email_status: false } },
+              columns: {
+                columnVisibilityModel: { host_name: true, email_status: false },
+              },
             }}
           />
-          <p className="mt-3 text-xs text-[var(--text-3)]">Check-in is enabled only when status is approved.</p>
+          <p className="mt-3 text-xs text-[var(--text-3)]">
+            Check-in is enabled only when status is approved.
+          </p>
         </Panel>
       </div>
     </DashboardLayout>

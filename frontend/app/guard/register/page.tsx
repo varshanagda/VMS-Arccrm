@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect, Suspense } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Panel } from "@/components/dashboard/panels";
@@ -36,8 +36,13 @@ interface VisitorOut {
 
 const steps = ["Visitor Info", "Photo", "Host"];
 
-
-function StepIndicator({ stepIndex, current }: { stepIndex: number; current: number }) {
+function StepIndicator({
+  stepIndex,
+  current,
+}: {
+  stepIndex: number;
+  current: number;
+}) {
   if (stepIndex < current) {
     return (
       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent)] text-sm font-semibold text-[var(--accent-fg)]">
@@ -60,19 +65,11 @@ function StepIndicator({ stepIndex, current }: { stepIndex: number; current: num
 }
 
 export default function ReceptionRegisterPage() {
-  return (
-    <Suspense fallback={<div className="p-8 text-center text-sm text-[var(--text-3)]">Loading...</div>}>
-      <ReceptionRegisterContent />
-    </Suspense>
-  );
-}
-
-function ReceptionRegisterContent() {
   const user = useAuthGuard({ allowedRoles: ["guard", "admin", "superadmin"] });
   const router = useRouter();
   const searchParams = useSearchParams();
   const { pushToast } = useToast();
-  
+
   const initialStep = Number(searchParams.get("step")) || 0;
   const [step, setStep] = useState(initialStep);
 
@@ -112,17 +109,23 @@ function ReceptionRegisterContent() {
     const nextErrors: Record<string, string> = {};
     if (targetStep === 0) {
       if (!register.name?.trim()) nextErrors.name = "Visitor name is required.";
-      if (register.email && !emailRegex.test(register.email.trim())) nextErrors.email = "Enter a valid email.";
-      if (register.phone && !phoneRegex.test(register.phone.trim())) nextErrors.phone = "Enter a valid 10-digit phone number.";
-      if (!register.purpose?.trim()) nextErrors.purpose = "Purpose is required.";
-      if (!register.valid_from) nextErrors.valid_from = "Valid from date is required.";
-      if (!register.valid_to) nextErrors.valid_to = "Valid to date is required.";
+      if (register.email && !emailRegex.test(register.email.trim()))
+        nextErrors.email = "Enter a valid email.";
+      if (register.phone && !phoneRegex.test(register.phone.trim()))
+        nextErrors.phone = "Enter a valid 10-digit phone number.";
+      if (!register.purpose?.trim())
+        nextErrors.purpose = "Purpose is required.";
+      if (!register.valid_from)
+        nextErrors.valid_from = "Valid from date is required.";
+      if (!register.valid_to)
+        nextErrors.valid_to = "Valid to date is required.";
     }
     if (targetStep === 1) {
       if (!register.photo_url) nextErrors.photo_url = "Photo is required.";
     }
     if (targetStep === 2) {
-      if (!register.host_employee) nextErrors.host_employee = "Please select a host.";
+      if (!register.host_employee)
+        nextErrors.host_employee = "Please select a host.";
     }
     setFormErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -144,9 +147,15 @@ function ReceptionRegisterContent() {
     try {
       const payload = {
         ...register,
-        host_employee: register.host_employee ? Number(register.host_employee) : null,
-        valid_from: register.valid_from ? new Date(register.valid_from).toISOString() : undefined,
-        valid_to: register.valid_to ? new Date(register.valid_to).toISOString() : undefined,
+        host_employee: register.host_employee
+          ? Number(register.host_employee)
+          : null,
+        valid_from: register.valid_from
+          ? new Date(register.valid_from).toISOString()
+          : undefined,
+        valid_to: register.valid_to
+          ? new Date(register.valid_to).toISOString()
+          : undefined,
       };
       const created = await apiFetch<VisitorOut>("/visitor/create", {
         method: "POST",
@@ -176,7 +185,8 @@ function ReceptionRegisterContent() {
                 variant: "success",
               });
             } catch (err) {
-              const errorMessage = err instanceof Error ? err.message : "Resend failed";
+              const errorMessage =
+                err instanceof Error ? err.message : "Resend failed";
               pushToast({
                 title: "Resend failed",
                 description: errorMessage,
@@ -205,7 +215,8 @@ function ReceptionRegisterContent() {
       setStep(0);
       router.push("/guard/qr-checkin");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Registration failed";
+      const errorMessage =
+        err instanceof Error ? err.message : "Registration failed";
       pushToast({
         title: "Registration failed",
         description: errorMessage,
@@ -216,13 +227,19 @@ function ReceptionRegisterContent() {
     }
   }
 
-  const progressWidth = useMemo(() => `${((step + 1) / steps.length) * 100}%`, [step]);
+  const progressWidth = useMemo(
+    () => `${((step + 1) / steps.length) * 100}%`,
+    [step],
+  );
 
   if (!user) return null;
 
   return (
     <DashboardLayout user={user}>
-      <DashboardPageHeader title="Register Visitor" subtitle="Multi-step visitor registration for reception." />
+      <DashboardPageHeader
+        title="Register Visitor"
+        subtitle="Multi-step visitor registration for reception."
+      />
       <div className="space-y-6">
         <EntryDeskHeader
           title="Visitor Registration"
@@ -231,13 +248,24 @@ function ReceptionRegisterContent() {
 
         <Panel title="Registration Wizard">
           <div className="mb-4 h-1 w-full overflow-hidden rounded-full bg-[var(--surface-2)]">
-            <div className="h-full bg-[var(--accent)] transition-all" style={{ width: progressWidth }} />
+            <div
+              className="h-full bg-[var(--accent)] transition-all"
+              style={{ width: progressWidth }}
+            />
           </div>
           <div className="flex flex-wrap items-center gap-6">
             {steps.map((label, idx) => (
               <div key={label} className="flex items-center gap-3">
                 <StepIndicator stepIndex={idx} current={step} />
-                <span className={idx === step ? "text-[var(--text-1)]" : "text-[var(--text-3)]"}>{label}</span>
+                <span
+                  className={
+                    idx === step
+                      ? "text-[var(--text-1)]"
+                      : "text-[var(--text-3)]"
+                  }
+                >
+                  {label}
+                </span>
               </div>
             ))}
           </div>
@@ -246,51 +274,100 @@ function ReceptionRegisterContent() {
             {step === 0 ? (
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="flex flex-col">
-                  <label className="mb-2 text-sm text-[var(--text-2)]">Visitor Name</label>
+                  <label className="mb-2 text-sm text-[var(--text-2)]">
+                    Visitor Name
+                  </label>
                   <input
                     className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     value={register.name}
-                    onChange={(e) => setRegister((prev) => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) =>
+                      setRegister((prev) => ({ ...prev, name: e.target.value }))
+                    }
                   />
-                  {formErrors.name ? <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.name}</p> : null}
+                  {formErrors.name ? (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                      {formErrors.name}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex flex-col">
-                  <label className="mb-2 text-sm text-[var(--text-2)]">Phone</label>
+                  <label className="mb-2 text-sm text-[var(--text-2)]">
+                    Phone
+                  </label>
                   <input
                     className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     value={register.phone}
-                    onChange={(e) => setRegister((prev) => ({ ...prev, phone: e.target.value }))}
+                    onChange={(e) =>
+                      setRegister((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
                   />
-                  {formErrors.phone ? <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.phone}</p> : null}
+                  {formErrors.phone ? (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                      {formErrors.phone}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex flex-col">
-                  <label className="mb-2 text-sm text-[var(--text-2)]">Email</label>
+                  <label className="mb-2 text-sm text-[var(--text-2)]">
+                    Email
+                  </label>
                   <input
                     className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     value={register.email}
-                    onChange={(e) => setRegister((prev) => ({ ...prev, email: e.target.value }))}
+                    onChange={(e) =>
+                      setRegister((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                    }
                   />
-                  {formErrors.email ? <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.email}</p> : null}
+                  {formErrors.email ? (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                      {formErrors.email}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex flex-col">
-                  <label className="mb-2 text-sm text-[var(--text-2)]">Company</label>
+                  <label className="mb-2 text-sm text-[var(--text-2)]">
+                    Company
+                  </label>
                   <input
                     className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     value={register.company}
-                    onChange={(e) => setRegister((prev) => ({ ...prev, company: e.target.value }))}
+                    onChange={(e) =>
+                      setRegister((prev) => ({
+                        ...prev,
+                        company: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div className="flex flex-col">
-                  <label className="mb-2 text-sm text-[var(--text-2)]">Visitor Type</label>
+                  <label className="mb-2 text-sm text-[var(--text-2)]">
+                    Visitor Type
+                  </label>
                   <CustomSelect
                     className="h-11 w-full m-0"
-                    options={["Guest", "Vendor", "Contractor", "Interview", "Delivery", "Custom"].map(opt => ({ value: opt, label: opt }))}
+                    options={[
+                      "Guest",
+                      "Vendor",
+                      "Contractor",
+                      "Interview",
+                      "Delivery",
+                      "Custom",
+                    ].map((opt) => ({ value: opt, label: opt }))}
                     value={visitorTypeOption}
                     onChange={(value) => {
                       setVisitorTypeOption(value);
                       if (value !== "Custom") {
                         setCustomVisitorType("");
-                        setRegister((prev) => ({ ...prev, visitor_type: value }));
+                        setRegister((prev) => ({
+                          ...prev,
+                          visitor_type: value,
+                        }));
                       } else {
                         setRegister((prev) => ({ ...prev, visitor_type: "" }));
                       }
@@ -299,24 +376,38 @@ function ReceptionRegisterContent() {
                 </div>
                 {visitorTypeOption === "Custom" ? (
                   <div className="flex flex-col">
-                    <label className="mb-2 text-sm text-[var(--text-2)]">Custom Visitor Type</label>
+                    <label className="mb-2 text-sm text-[var(--text-2)]">
+                      Custom Visitor Type
+                    </label>
                     <input
                       className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                       value={customVisitorType}
                       onChange={(e) => {
                         const value = e.target.value;
                         setCustomVisitorType(value);
-                        setRegister((prev) => ({ ...prev, visitor_type: value }));
+                        setRegister((prev) => ({
+                          ...prev,
+                          visitor_type: value,
+                        }));
                       }}
                       placeholder="Enter visitor type"
                     />
                   </div>
                 ) : null}
                 <div className="flex flex-col">
-                  <label className="mb-2 text-sm text-[var(--text-2)]">Purpose</label>
+                  <label className="mb-2 text-sm text-[var(--text-2)]">
+                    Purpose
+                  </label>
                   <CustomSelect
                     className="h-11 w-full m-0"
-                    options={["Meeting", "Interview", "Delivery", "Maintenance", "Vendor", "Custom"].map(opt => ({ value: opt, label: opt }))}
+                    options={[
+                      "Meeting",
+                      "Interview",
+                      "Delivery",
+                      "Maintenance",
+                      "Vendor",
+                      "Custom",
+                    ].map((opt) => ({ value: opt, label: opt }))}
                     value={purposeOption}
                     onChange={(value) => {
                       setPurposeOption(value);
@@ -328,11 +419,17 @@ function ReceptionRegisterContent() {
                       }
                     }}
                   />
-                  {formErrors.purpose ? <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.purpose}</p> : null}
+                  {formErrors.purpose ? (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                      {formErrors.purpose}
+                    </p>
+                  ) : null}
                 </div>
                 {purposeOption === "Custom" ? (
                   <div className="flex flex-col md:col-span-2">
-                    <label className="mb-2 text-sm text-[var(--text-2)]">Custom Purpose</label>
+                    <label className="mb-2 text-sm text-[var(--text-2)]">
+                      Custom Purpose
+                    </label>
                     <input
                       className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                       value={customPurpose}
@@ -347,24 +444,46 @@ function ReceptionRegisterContent() {
                 ) : null}
 
                 <div className="flex flex-col">
-                  <label className="mb-2 text-sm text-[var(--text-2)]">Valid From</label>
+                  <label className="mb-2 text-sm text-[var(--text-2)]">
+                    Valid From
+                  </label>
                   <input
                     type="datetime-local"
                     className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     value={register.valid_from}
-                    onChange={(e) => setRegister((prev) => ({ ...prev, valid_from: e.target.value }))}
+                    onChange={(e) =>
+                      setRegister((prev) => ({
+                        ...prev,
+                        valid_from: e.target.value,
+                      }))
+                    }
                   />
-                  {formErrors.valid_from ? <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.valid_from}</p> : null}
+                  {formErrors.valid_from ? (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                      {formErrors.valid_from}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex flex-col">
-                  <label className="mb-2 text-sm text-[var(--text-2)]">Valid To</label>
+                  <label className="mb-2 text-sm text-[var(--text-2)]">
+                    Valid To
+                  </label>
                   <input
                     type="datetime-local"
                     className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     value={register.valid_to}
-                    onChange={(e) => setRegister((prev) => ({ ...prev, valid_to: e.target.value }))}
+                    onChange={(e) =>
+                      setRegister((prev) => ({
+                        ...prev,
+                        valid_to: e.target.value,
+                      }))
+                    }
                   />
-                  {formErrors.valid_to ? <p className="mt-1 text-xs text-red-600 dark:text-red-400">{formErrors.valid_to}</p> : null}
+                  {formErrors.valid_to ? (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                      {formErrors.valid_to}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="md:col-span-2 flex justify-end mt-2">
@@ -383,9 +502,15 @@ function ReceptionRegisterContent() {
               <div className="space-y-4">
                 <PhotoCapture
                   value={register.photo_url}
-                  onChange={(value) => setRegister((prev) => ({ ...prev, photo_url: value }))}
+                  onChange={(value) =>
+                    setRegister((prev) => ({ ...prev, photo_url: value }))
+                  }
                 />
-                {formErrors.photo_url ? <p className="text-sm text-red-600 dark:text-red-400">{formErrors.photo_url}</p> : null}
+                {formErrors.photo_url ? (
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    {formErrors.photo_url}
+                  </p>
+                ) : null}
                 <div className="flex items-center justify-between">
                   <button
                     type="button"
@@ -409,13 +534,19 @@ function ReceptionRegisterContent() {
               <div className="space-y-4">
                 <HostSearch
                   value={register.host_employee ?? null}
-                  onChange={(value) => setRegister((prev) => ({ ...prev, host_employee: value }))}
+                  onChange={(value) =>
+                    setRegister((prev) => ({ ...prev, host_employee: value }))
+                  }
                   onSelectHost={setSelectedHost}
                 />
                 <p className="text-xs text-[var(--text-3)]">
                   Selected host email: {selectedHost?.email ?? "None"}
                 </p>
-                {formErrors.host_employee ? <p className="text-sm text-red-600 dark:text-red-400">{formErrors.host_employee}</p> : null}
+                {formErrors.host_employee ? (
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    {formErrors.host_employee}
+                  </p>
+                ) : null}
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <button
                     type="button"
@@ -439,13 +570,14 @@ function ReceptionRegisterContent() {
                       className="rounded-lg bg-[var(--accent)] px-6 py-2 text-sm font-semibold text-[var(--accent-fg)] shadow-sm transition hover:brightness-95 disabled:opacity-60"
                     >
                       {loading ? "Registering..." : "Register"}
-                      {loading ? <span className="ml-2 inline-block h-3 w-3 animate-spin rounded-full border-2 border-[var(--accent-fg)]/30 border-t-[var(--accent-fg)]" /> : null}
+                      {loading ? (
+                        <span className="ml-2 inline-block h-3 w-3 animate-spin rounded-full border-2 border-[var(--accent-fg)]/30 border-t-[var(--accent-fg)]" />
+                      ) : null}
                     </button>
                   </div>
                 </div>
               </div>
             ) : null}
-
           </div>
         </Panel>
       </div>

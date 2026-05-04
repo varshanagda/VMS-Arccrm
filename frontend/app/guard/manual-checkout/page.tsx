@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { Panel } from "@/components/dashboard/panels";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -29,9 +29,16 @@ export default function ManualCheckoutPage() {
   const [idCardNumber, setIdCardNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<VisitHistoryItem[]>([]);
-  const [checkoutCandidate, setCheckoutCandidate] = useState<string | null>(null);
+  const [checkoutCandidate, setCheckoutCandidate] = useState<string | null>(
+    null,
+  );
 
-  const loadHistory = useCallback(async () => {
+  useEffect(() => {
+    if (!user) return;
+    void loadHistory();
+  }, [user]);
+
+  async function loadHistory() {
     setLoading(true);
     try {
       const data = await apiFetch<VisitHistoryItem[]>("/visit/history");
@@ -39,18 +46,14 @@ export default function ManualCheckoutPage() {
     } catch (err) {
       pushToast({
         title: "Failed to load history",
-        description: err instanceof Error ? err.message : "Failed to load history",
+        description:
+          err instanceof Error ? err.message : "Failed to load history",
         variant: "error",
       });
     } finally {
       setLoading(false);
     }
-  }, [pushToast]);
-
-  useEffect(() => {
-    if (!user) return;
-    void loadHistory();
-  }, [user, loadHistory]);
+  }
 
   async function submitCheckout(idNumber: string) {
     setLoading(true);
@@ -90,10 +93,14 @@ export default function ManualCheckoutPage() {
       history
         .filter((item) => item.status === "checked_in")
         .sort((a, b) => b.visit_id - a.visit_id),
-    [history]
+    [history],
   );
 
-  type VisitHistoryValueGetterParams = { row: VisitHistoryItem; id?: unknown; index: number };
+  type VisitHistoryValueGetterParams = {
+    row: VisitHistoryItem;
+    id?: unknown;
+    index: number;
+  };
 
   const columns: GridColDef<VisitHistoryItem>[] = useMemo(
     () => [
@@ -103,9 +110,9 @@ export default function ManualCheckoutPage() {
         width: 90,
         sortable: false,
         filterable: false,
-        valueGetter: ((params: VisitHistoryValueGetterParams) => {
+        valueGetter: (params: VisitHistoryValueGetterParams) => {
           return params.index + 1;
-        }),
+        },
         renderCell: (params: GridRenderCellParams<VisitHistoryItem>) => {
           return params.index + 1;
         },
@@ -123,18 +130,22 @@ export default function ManualCheckoutPage() {
         flex: 1,
         minWidth: 180,
         filterable: false,
-        valueGetter: ((params: VisitHistoryValueGetterParams) => params?.row?.checkin_time ?? null),
-        valueFormatter: ((value) =>
-          value ? new Date(value as string).toLocaleString() : "-"),
+        valueGetter: (params: VisitHistoryValueGetterParams) =>
+          params?.row?.checkin_time ?? null,
+        valueFormatter: (value) =>
+          value ? new Date(value as string).toLocaleString() : "-",
       },
       {
         field: "id_number",
         headerName: "ID Card",
         width: 150,
         filterable: false,
-        valueGetter: ((params: VisitHistoryValueGetterParams) => params?.row?.id_number ?? "-"),
+        valueGetter: (params: VisitHistoryValueGetterParams) =>
+          params?.row?.id_number ?? "-",
         renderCell: (params: GridRenderCellParams<VisitHistoryItem>) => (
-          <span className="block truncate">{String(params.row.id_number ?? "-")}</span>
+          <span className="block truncate">
+            {String(params.row.id_number ?? "-")}
+          </span>
         ),
       },
       {
@@ -161,22 +172,30 @@ export default function ManualCheckoutPage() {
         flex: 1,
         minWidth: 180,
         filterable: true,
-        valueGetter: ((params: VisitHistoryValueGetterParams) => params?.row?.created_at ?? null),
-        valueFormatter: ((value) =>
-          value ? new Date(value as string).toLocaleDateString() : "-"),
+        valueGetter: (params: VisitHistoryValueGetterParams) =>
+          params?.row?.created_at ?? null,
+        valueFormatter: (value) =>
+          value ? new Date(value as string).toLocaleDateString() : "-",
         renderCell: (params: GridRenderCellParams<VisitHistoryItem>) => (
-          <span>{params?.row?.created_at ? new Date(params.row.created_at).toLocaleDateString() : "-"}</span>
+          <span>
+            {params?.row?.created_at
+              ? new Date(params.row.created_at).toLocaleDateString()
+              : "-"}
+          </span>
         ),
       },
     ],
-    [loading]
+    [loading],
   );
 
   if (!user) return null;
 
   return (
     <DashboardLayout user={user}>
-      <DashboardPageHeader title="Checkout" subtitle="Check out visitors by ID card when needed." />
+      <DashboardPageHeader
+        title="Checkout"
+        subtitle="Check out visitors by ID card when needed."
+      />
       <div className="space-y-3">
         <EntryDeskHeader
           title="Checkout"
@@ -184,7 +203,10 @@ export default function ManualCheckoutPage() {
         />
 
         <Panel title="Check-out by ID Card">
-          <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleCheckout}>
+          <form
+            className="flex flex-col gap-3 sm:flex-row"
+            onSubmit={handleCheckout}
+          >
             <input
               className="w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)]"
               placeholder="ID Card Number"
@@ -210,7 +232,9 @@ export default function ManualCheckoutPage() {
             loading={loading && checkedInRows.length === 0}
             searchPlaceholder="Search visitor or visit ID..."
             localeText={{
-              noRowsLabel: loading ? "Loading checked-in visitors..." : "No checked-in visitors found.",
+              noRowsLabel: loading
+                ? "Loading checked-in visitors..."
+                : "No checked-in visitors found.",
             }}
           />
         </Panel>
@@ -218,9 +242,15 @@ export default function ManualCheckoutPage() {
       {checkoutCandidate ? (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-950/45 px-4">
           <div className="w-full max-w-md rounded-2xl border border-[var(--border-1)] bg-[var(--surface-1)] p-6 shadow-[var(--shadow-1)]">
-            <h2 className="text-lg font-semibold text-[var(--text-1)]">Confirm check-out</h2>
+            <h2 className="text-lg font-semibold text-[var(--text-1)]">
+              Confirm check-out
+            </h2>
             <p className="mt-2 text-sm text-[var(--text-3)]">
-              Check out the visitor using ID card <span className="font-semibold text-[var(--text-1)]">{checkoutCandidate}</span>?
+              Check out the visitor using ID card{" "}
+              <span className="font-semibold text-[var(--text-1)]">
+                {checkoutCandidate}
+              </span>
+              ?
             </p>
             <div className="mt-6 flex justify-end gap-3">
               <button

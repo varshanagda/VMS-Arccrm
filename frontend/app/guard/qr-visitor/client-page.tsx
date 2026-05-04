@@ -53,8 +53,10 @@ function areAvailableCardsEqual(a: AvailableIdCard[], b: AvailableIdCard[]) {
 function getStatusTone(detail: VisitDetail | null) {
   if (!detail) {
     return {
-      panelClass: "border-red-400/30 bg-red-500/10 text-red-700 dark:text-red-200",
-      badgeClass: "border-red-400/40 bg-red-500/15 text-red-700 dark:text-red-200",
+      panelClass:
+        "border-red-400/30 bg-red-500/10 text-red-700 dark:text-red-200",
+      badgeClass:
+        "border-red-400/40 bg-red-500/15 text-red-700 dark:text-red-200",
       label: "Invalid Scan",
       description: "No visitor record was resolved from this QR scan.",
       canCheckIn: false,
@@ -63,22 +65,37 @@ function getStatusTone(detail: VisitDetail | null) {
 
   const now = Date.now();
   const expiryMs = detail.qr_expiry ? Date.parse(detail.qr_expiry) : null;
-  const isExpired = detail.source === "qr_invite" && Number.isFinite(expiryMs) && expiryMs !== null && expiryMs <= now;
+  const isExpired =
+    detail.source === "qr_invite" &&
+    Number.isFinite(expiryMs) &&
+    expiryMs !== null &&
+    expiryMs <= now;
 
-  if (isExpired || detail.status === "rejected" || detail.status === "checked_out" || detail.status === "auto_checked_out") {
+  if (
+    isExpired ||
+    detail.status === "rejected" ||
+    detail.status === "checked_out" ||
+    detail.status === "auto_checked_out"
+  ) {
     return {
-      panelClass: "border-red-400/30 bg-red-500/10 text-red-700 dark:text-red-200",
-      badgeClass: "border-red-400/40 bg-red-500/15 text-red-700 dark:text-red-200",
+      panelClass:
+        "border-red-400/30 bg-red-500/10 text-red-700 dark:text-red-200",
+      badgeClass:
+        "border-red-400/40 bg-red-500/15 text-red-700 dark:text-red-200",
       label: isExpired ? "QR Expired" : "Check-in Blocked",
-      description: isExpired ? "This invite has expired." : `This visit is ${detail.status.replace(/_/g, " ")}.`,
+      description: isExpired
+        ? "This invite has expired."
+        : `This visit is ${detail.status.replace(/_/g, " ")}.`,
       canCheckIn: false,
     };
   }
 
   if (detail.status === "checked_in") {
     return {
-      panelClass: "border-amber-400/30 bg-amber-500/10 text-amber-700 dark:text-amber-100",
-      badgeClass: "border-amber-400/40 bg-amber-500/15 text-amber-700 dark:text-amber-100",
+      panelClass:
+        "border-amber-400/30 bg-amber-500/10 text-amber-700 dark:text-amber-100",
+      badgeClass:
+        "border-amber-400/40 bg-amber-500/15 text-amber-700 dark:text-amber-100",
       label: "Already Checked In",
       description: "This visitor is already checked in.",
       canCheckIn: false,
@@ -87,8 +104,10 @@ function getStatusTone(detail: VisitDetail | null) {
 
   if (detail.status !== "approved") {
     return {
-      panelClass: "border-red-400/30 bg-red-500/10 text-red-700 dark:text-red-200",
-      badgeClass: "border-red-400/40 bg-red-500/15 text-red-700 dark:text-red-200",
+      panelClass:
+        "border-red-400/30 bg-red-500/10 text-red-700 dark:text-red-200",
+      badgeClass:
+        "border-red-400/40 bg-red-500/15 text-red-700 dark:text-red-200",
       label: "Approval Pending",
       description: "This visitor is not approved for check-in yet.",
       canCheckIn: false,
@@ -96,8 +115,10 @@ function getStatusTone(detail: VisitDetail | null) {
   }
 
   return {
-    panelClass: "border-emerald-400/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-100",
-    badgeClass: "border-emerald-400/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-100",
+    panelClass:
+      "border-emerald-400/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-100",
+    badgeClass:
+      "border-emerald-400/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-100",
     label: "Valid Scan",
     description: "Visitor is ready for photo verification and check-in.",
     canCheckIn: true,
@@ -118,7 +139,9 @@ function ReceptionQrVisitorContent() {
   const qrCode = searchParams.get("code");
 
   const [detail, setDetail] = useState<VisitDetail | null>(null);
-  const [statusResult, setStatusResult] = useState<VisitStatusResult | null>(null);
+  const [statusResult, setStatusResult] = useState<VisitStatusResult | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -137,10 +160,17 @@ function ReceptionQrVisitorContent() {
     try {
       const data = await apiFetch<AvailableIdCard[]>("/id-cards/available");
       const next = data ?? [];
-      setAvailableCards((prev) => (areAvailableCardsEqual(prev, next) ? prev : next));
+      setAvailableCards((prev) =>
+        areAvailableCardsEqual(prev, next) ? prev : next,
+      );
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to load ID cards";
-      pushToast({ title: "ID cards unavailable", description: message, variant: "error" });
+      const message =
+        err instanceof Error ? err.message : "Failed to load ID cards";
+      pushToast({
+        title: "ID cards unavailable",
+        description: message,
+        variant: "error",
+      });
     } finally {
       setIdCardLoading(false);
     }
@@ -151,7 +181,9 @@ function ReceptionQrVisitorContent() {
       setLoading(true);
       setError("");
       try {
-        const detailData = await apiFetch<VisitDetail>(`/qr-visitor/details?code=${encodeURIComponent(qrCode)}`);
+        const detailData = await apiFetch<VisitDetail>(
+          `/qr-visitor/details?code=${encodeURIComponent(qrCode)}`,
+        );
         setDetail(detailData);
         setStatusResult({
           visit_id: detailData.visit_id ?? 0,
@@ -168,7 +200,8 @@ function ReceptionQrVisitorContent() {
           setLoading(false);
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to resolve scanned QR";
+        const message =
+          err instanceof Error ? err.message : "Failed to resolve scanned QR";
         setError(message);
         setDetail(null);
         setStatusResult(null);
@@ -188,7 +221,9 @@ function ReceptionQrVisitorContent() {
     setLoading(true);
     setError("");
     try {
-      const detailData = await apiFetch<VisitDetail>(`/visit/${resolvedVisitId}/details`);
+      const detailData = await apiFetch<VisitDetail>(
+        `/visit/${resolvedVisitId}/details`,
+      );
       setDetail(detailData);
       setStatusResult({
         visit_id: detailData.visit_id ?? 0,
@@ -200,7 +235,8 @@ function ReceptionQrVisitorContent() {
       });
       setPhotoUrl(resolveApiAssetUrl(detailData.photo_url) ?? "");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to load visitor details";
+      const message =
+        err instanceof Error ? err.message : "Failed to load visitor details";
       setError(message);
       setDetail(null);
       setStatusResult(null);
@@ -217,11 +253,19 @@ function ReceptionQrVisitorContent() {
   const handleConfirmCheckin = useCallback(async () => {
     if (!detail) return;
     if (!statusTone.canCheckIn) {
-      pushToast({ title: "Check-in blocked", description: statusTone.description, variant: "error" });
+      pushToast({
+        title: "Check-in blocked",
+        description: statusTone.description,
+        variant: "error",
+      });
       return;
     }
     if (!idNumber.trim()) {
-      pushToast({ title: "ID card required", description: "Select or enter an ID card number.", variant: "error" });
+      pushToast({
+        title: "ID card required",
+        description: "Select or enter an ID card number.",
+        variant: "error",
+      });
       return;
     }
 
@@ -246,27 +290,50 @@ function ReceptionQrVisitorContent() {
       router.push("/guard/qr-checkin");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Check-in failed";
-      pushToast({ title: "Check-in failed", description: message, variant: "error" });
+      pushToast({
+        title: "Check-in failed",
+        description: message,
+        variant: "error",
+      });
     } finally {
       setSubmitting(false);
     }
-  }, [detail, idNumber, photoUrl, policyAccepted, pushToast, qrCode, router, statusTone]);
+  }, [
+    detail,
+    idNumber,
+    photoUrl,
+    policyAccepted,
+    pushToast,
+    router,
+    statusTone,
+  ]);
 
   if (!user) return null;
 
   return (
     <DashboardLayout user={user}>
-      <DashboardPageHeader title="QR Visitor" subtitle="Review scanned visitor details and complete check-in." />
+      <DashboardPageHeader
+        title="QR Visitor"
+        subtitle="Review scanned visitor details and complete check-in."
+      />
       <div className="space-y-6">
         <Panel title="Scan Result">
           <div className={`rounded-2xl border p-4 ${statusTone.panelClass}`}>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.22em]">QR Validation</p>
-                <p className="mt-2 text-lg font-semibold text-[var(--text-1)]">{statusTone.label}</p>
-                <p className="mt-1 text-sm text-current/90">{error || statusTone.description}</p>
+                <p className="text-xs uppercase tracking-[0.22em]">
+                  QR Validation
+                </p>
+                <p className="mt-2 text-lg font-semibold text-[var(--text-1)]">
+                  {statusTone.label}
+                </p>
+                <p className="mt-1 text-sm text-current/90">
+                  {error || statusTone.description}
+                </p>
               </div>
-              <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusTone.badgeClass}`}>
+              <span
+                className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusTone.badgeClass}`}
+              >
                 {detail?.status ? detail.status.replace(/_/g, " ") : "invalid"}
               </span>
             </div>
@@ -292,26 +359,44 @@ function ReceptionQrVisitorContent() {
                     <span className="font-semibold">{detail.visitor_name}</span>
                     <span>{detail.host_name || "Unknown"}</span>
                     <span>{statusResult.status.replace(/_/g, " ")}</span>
-                    <span>{new Date(statusResult.created_at).toLocaleString()}</span>
+                    <span>
+                      {new Date(statusResult.created_at).toLocaleString()}
+                    </span>
                   </div>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="rounded-2xl border border-[var(--border-1)] bg-[var(--surface-2)] p-4">
-                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-3)]">Phone</p>
-                    <p className="mt-2 text-base text-[var(--text-1)]">{detail.phone || "-"}</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-3)]">
+                      Phone
+                    </p>
+                    <p className="mt-2 text-base text-[var(--text-1)]">
+                      {detail.phone || "-"}
+                    </p>
                   </div>
                   <div className="rounded-2xl border border-[var(--border-1)] bg-[var(--surface-2)] p-4">
-                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-3)]">Email</p>
-                    <p className="mt-2 text-base text-[var(--text-1)]">{detail.email || "-"}</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-3)]">
+                      Email
+                    </p>
+                    <p className="mt-2 text-base text-[var(--text-1)]">
+                      {detail.email || "-"}
+                    </p>
                   </div>
                   <div className="rounded-2xl border border-[var(--border-1)] bg-[var(--surface-2)] p-4">
-                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-3)]">Company</p>
-                    <p className="mt-2 text-base text-[var(--text-1)]">{detail.company || "-"}</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-3)]">
+                      Company
+                    </p>
+                    <p className="mt-2 text-base text-[var(--text-1)]">
+                      {detail.company || "-"}
+                    </p>
                   </div>
                   <div className="rounded-2xl border border-[var(--border-1)] bg-[var(--surface-2)] p-4">
-                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-3)]">Purpose</p>
-                    <p className="mt-2 text-base text-[var(--text-1)]">{detail.purpose || "-"}</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-3)]">
+                      Purpose
+                    </p>
+                    <p className="mt-2 text-base text-[var(--text-1)]">
+                      {detail.purpose || "-"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -327,13 +412,23 @@ function ReceptionQrVisitorContent() {
               <PhotoCapture value={photoUrl} onChange={setPhotoUrl} />
 
               <div className="flex flex-col">
-                <label className="mb-2 text-sm text-[var(--text-2)]">ID Card</label>
+                <label className="mb-2 text-sm text-[var(--text-2)]">
+                  ID Card
+                </label>
                 <CustomSelect
                   className="h-11 w-full m-0"
                   options={[
-                    { value: "", label: idCardLoading ? "Loading ID cards..." : "Select ID card" },
-                    ...availableCards.map(card => ({ value: card.id_number, label: card.id_number })),
-                    { value: "__custom__", label: "Custom" }
+                    {
+                      value: "",
+                      label: idCardLoading
+                        ? "Loading ID cards..."
+                        : "Select ID card",
+                    },
+                    ...availableCards.map((card) => ({
+                      value: card.id_number,
+                      label: card.id_number,
+                    })),
+                    { value: "__custom__", label: "Custom" },
                   ]}
                   value={idCardSelection}
                   onChange={(value) => {
@@ -351,7 +446,9 @@ function ReceptionQrVisitorContent() {
 
               {idCardSelection === "__custom__" ? (
                 <div className="flex flex-col">
-                  <label className="mb-2 text-sm text-[var(--text-2)]">Custom ID Card Number</label>
+                  <label className="mb-2 text-sm text-[var(--text-2)]">
+                    Custom ID Card Number
+                  </label>
                   <input
                     className="h-11 w-full rounded-md border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] outline-none transition placeholder:text-[var(--text-3)] focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
                     placeholder="Enter ID card number"
