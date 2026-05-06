@@ -25,12 +25,11 @@ class Settings(BaseSettings):
             "http://127.0.0.1:3000",
             "http://localhost:3001",
             "http://127.0.0.1:3001",
-            "http://192.168.126.18:3000",
-            "https://visitor.arcgate.in",
-            "http://visitor.arcgate.in",
+            "http://192.168.126.197:3000",
+            "http://visitor.arcgate.in:3000",
         ]
     )
-    CORS_ORIGIN_REGEX: str = r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|visitor\.arcgate\.in|.*\.arcgate\.in)(:\d+)?$"
+    CORS_ORIGIN_REGEX: str = r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|.*\.arcgate\.in)(:\d+)?$"
     SMTP_HOST: Optional[str] = None
     SMTP_PORT: int = 587
     SMTP_USER: Optional[str] = None
