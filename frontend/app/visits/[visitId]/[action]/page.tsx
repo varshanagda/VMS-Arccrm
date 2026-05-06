@@ -8,7 +8,8 @@ type VisitActionPageProps = {
   };
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8005";
+// Use an internal URL for server-side fetches to avoid SSL certificate issues with self-signed certs
+const API_BASE_URL = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8005";
 
 export const dynamic = "force-dynamic";
 
