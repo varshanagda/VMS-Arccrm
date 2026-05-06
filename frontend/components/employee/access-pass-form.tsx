@@ -105,7 +105,7 @@ export function AccessPassForm({
   }
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className={`flex flex-col gap-6 ${className || ""}`}>
       <div className="flex flex-col">
         <label className="mb-1 text-xs text-[var(--text-2)]">Visitor Name</label>
         <input
@@ -182,7 +182,7 @@ export function AccessPassForm({
         disabled={loading}
         className="mt-2 h-11 w-full rounded-lg bg-[var(--accent)] text-sm font-semibold text-[var(--accent-fg)] shadow-md transition hover:brightness-95 disabled:opacity-50"
       >
-        {loading ? "Generating..." : "Generate Pass"}
+        {loading ? loadingLabel : submitLabel}
       </button>
     </form>
   );
