@@ -143,19 +143,19 @@ function EmployeeVisitorsContent() {
         return "border-amber-300/60 bg-amber-500/15 text-amber-400";
       case "rejected":
         return "border-red-300/60 bg-red-500/15 text-red-400";
-      case "checked_in":
-        return "border-orange-300/60 bg-orange-500/15 text-orange-400";
-      case "checked_out":
+      case "IN":
+        return "border-orange-500/50 bg-orange-500/20 text-orange-400 font-bold shadow-[0_0_10px_rgba(249,115,22,0.15)]";
+      case "OUT":
       case "auto_checked_out":
-        return "border-slate-300/60 bg-slate-500/15 text-slate-400";
+        return "border-sky-500/50 bg-sky-500/20 text-sky-400 font-bold shadow-[0_0_10px_rgba(14,165,233,0.15)]";
       default:
         return "border-[var(--border-1)] bg-[var(--surface-2)] text-[var(--text-2)]";
     }
   };
 
   const statusLabel = useCallback((status: string) => {
-    if (status === "checked_in") return "In";
-    if (status === "checked_out") return "Out";
+    if (status === "checked_in" || status === "IN") return "IN";
+    if (status === "checked_out" || status === "OUT") return "OUT";
     return status.replace(/_/g, " ");
   }, []);
 
@@ -168,7 +168,8 @@ function EmployeeVisitorsContent() {
         .sort((a, b) => b.visit_id - a.visit_id)
         .map((item) => ({
           ...item,
-          status_label: statusLabel(item.status),
+          status: item.status === "checked_in" ? "IN" : item.status === "checked_out" ? "OUT" : item.status,
+          status_label: statusLabel(item.status === "checked_in" ? "IN" : item.status === "checked_out" ? "OUT" : item.status),
           photo: item.photo_url ? (item.photo_url.startsWith("http") ? item.photo_url : `${API_BASE_URL}${item.photo_url}`) : null,
         }));
       setRows(enrichedRows);
@@ -230,7 +231,7 @@ function EmployeeVisitorsContent() {
       { key: "visitor_name", label: "Visitor" },
       { key: "id_number", label: "ID Card" },
       { key: "status", label: "Status" },
-      { key: "checkin_time", label: "In" },
+      { key: "checkin_time", label: "IN" },
       { key: "created_at", label: "Created" },
       { key: "company", label: "Company" },
       { key: "visitor_email", label: "Email" },
@@ -267,7 +268,7 @@ function EmployeeVisitorsContent() {
         field: "status",
         headerName: "Status",
         type: "singleSelect",
-        valueOptions: ["approved", "pending", "rejected", "checked_in", "checked_out", "auto_checked_out"],
+        valueOptions: ["approved", "pending", "rejected", "IN", "OUT", "auto_checked_out"],
         width: 180,
         minWidth: 180,
         filterable: true,
@@ -282,7 +283,7 @@ function EmployeeVisitorsContent() {
       },
       {
         field: "checkin_time",
-        headerName: "In",
+        headerName: "IN",
         flex: 1,
         minWidth: 180,
         filterable: false,
@@ -362,8 +363,8 @@ function EmployeeVisitorsContent() {
             <div className="space-y-1"><p className="text-[11px] uppercase tracking-[0.2em] text-[var(--text-3)]">ID Card</p><p className="text-base text-[var(--text-1)]">{selectedRow.id_number ?? "—"}</p></div>
             <div className="space-y-1"><p className="text-[11px] uppercase tracking-[0.2em] text-[var(--text-3)]">Purpose</p><p className="text-base text-[var(--text-1)]">{selectedRow.purpose ?? "—"}</p></div>
             <div className="space-y-1"><p className="text-[11px] uppercase tracking-[0.2em] text-[var(--text-3)]">Company</p><p className="text-base text-[var(--text-1)]">{selectedRow.company ?? "—"}</p></div>
-            <div className="space-y-1"><p className="text-[11px] uppercase tracking-[0.2em] text-[var(--text-3)]">In</p><p className="text-base text-[var(--text-1)]">{selectedRow.checkin_time ? new Date(selectedRow.checkin_time).toLocaleString() : "—"}</p></div>
-            <div className="space-y-1"><p className="text-[11px] uppercase tracking-[0.2em] text-[var(--text-3)]">Out</p><p className="text-base text-[var(--text-1)]">{selectedRow.checkout_time ? new Date(selectedRow.checkout_time).toLocaleString() : "—"}</p></div>
+            <div className="space-y-1"><p className="text-[11px] uppercase tracking-[0.2em] text-[var(--text-3)]">IN</p><p className="text-base text-[var(--text-1)]">{selectedRow.checkin_time ? new Date(selectedRow.checkin_time).toLocaleString() : "—"}</p></div>
+            <div className="space-y-1"><p className="text-[11px] uppercase tracking-[0.2em] text-[var(--text-3)]">OUT</p><p className="text-base text-[var(--text-1)]">{selectedRow.checkout_time ? new Date(selectedRow.checkout_time).toLocaleString() : "—"}</p></div>
           </div>
         </div>
       </div>

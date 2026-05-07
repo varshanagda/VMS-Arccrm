@@ -94,20 +94,20 @@ export default function ReceptionQrCheckinPage() {
         return "border-amber-300/60 bg-amber-500/15 text-amber-400";
       case "rejected":
         return "border-red-300/60 bg-red-500/15 text-red-400";
-      case "checked_in":
-        return "border-orange-300/60 bg-orange-500/15 text-orange-400";
-      case "checked_out":
-        return "border-slate-300/60 bg-slate-500/15 text-slate-400";
+      case "IN":
+        return "border-orange-500/50 bg-orange-500/20 text-orange-400 font-bold shadow-[0_0_10px_rgba(249,115,22,0.15)]";
+      case "OUT":
+        return "border-sky-500/50 bg-sky-500/20 text-sky-400 font-bold shadow-[0_0_10px_rgba(14,165,233,0.15)]";
       default:
         return "border-[var(--border-1)] bg-[var(--surface-2)] text-[var(--text-2)]";
     }
   };
   const statusLabel = useCallback((status: string) => {
-    if (status === "checked_in") return "In";
-    if (status === "checked_out") return "Out";
+    if (status === "checked_in" || status === "IN") return "IN";
+    if (status === "checked_out" || status === "OUT") return "OUT";
     return status.replace(/_/g, " ");
   }, []);
-  const statusOptions = useMemo(() => ["approved", "pending", "rejected", "checked_in", "checked_out"], []);
+  const statusOptions = useMemo(() => ["approved", "pending", "rejected", "IN", "OUT"], []);
   const [idCardLoading, setIdCardLoading] = useState(false);
   const [availableCards, setAvailableCards] = useState<AvailableIdCard[]>([]);
   const [resendLoading, setResendLoading] = useState<Record<number, boolean>>({});
@@ -126,7 +126,10 @@ export default function ReceptionQrCheckinPage() {
       if (showLoading) setListLoading(true);
       try {
         const data = await apiFetch<VisitStatusRow[]>("/visits/list");
-        const next = data ?? [];
+        const next = (data ?? []).map(item => ({
+          ...item,
+          status: item.status === "checked_in" ? "IN" : item.status === "checked_out" ? "OUT" : item.status
+        }));
         if (statusMapReadyRef.current) {
           const nextMap: Record<number, string> = {};
           next.forEach((visit) => {
@@ -297,8 +300,8 @@ export default function ReceptionQrCheckinPage() {
       });
       setMessage("QR check-in completed.");
       pushToast({
-        title: "In completed",
-        description: "QR in successful.",
+        title: "IN completed",
+        description: "QR IN successful.",
         variant: "success",
       });
       setQrCode("");
@@ -315,7 +318,7 @@ export default function ReceptionQrCheckinPage() {
       const errorMessage = err instanceof Error ? err.message : "QR check-in failed";
       setMessage(errorMessage);
       pushToast({
-        title: "In failed",
+        title: "IN failed",
         description: errorMessage,
         variant: "error",
       });
@@ -347,9 +350,9 @@ export default function ReceptionQrCheckinPage() {
         setResolvedVisitorId((prev) => (prev === data.visitor_id ? prev : data.visitor_id));
         if (showToast) {
           if (data.status === "approved") {
-            pushToast({ title: "Approved by host", description: "You can in this visitor.", variant: "success" });
+            pushToast({ title: "Approved by host", description: "You can IN this visitor.", variant: "success" });
           } else if (data.status === "rejected") {
-            pushToast({ title: "Rejected by host", description: "Do not proceed with in.", variant: "error" });
+            pushToast({ title: "Rejected by host", description: "Do not proceed with IN.", variant: "error" });
           } else {
             pushToast({ title: "Pending approval", description: "Wait for host response.", variant: "info" });
           }
@@ -590,9 +593,9 @@ export default function ReceptionQrCheckinPage() {
 
   return (
     <DashboardLayout user={user}>
-      <DashboardPageHeader title="In" subtitle="Scan or paste a QR code to complete a check-in." />
+      <DashboardPageHeader title="IN" subtitle="Scan or paste a QR code to complete a check-in." />
       <div className="space-y-6">
-        <Panel title="In">
+        <Panel title="IN">
           <form className="flex flex-col sm:flex-row sm:items-center gap-4" onSubmit={handleQrCheckin}>
             <input
               className="flex-1 w-full sm:w-auto h-11 rounded-lg border border-[var(--border-1)] bg-[var(--surface-2)] px-4 text-sm text-[var(--text-1)] placeholder:text-[var(--text-3)] outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 box-border leading-none"
@@ -648,7 +651,7 @@ export default function ReceptionQrCheckinPage() {
               disabled={loading || visitorStatus !== "approved"}
               className="h-11 flex items-center justify-center shrink-0 whitespace-nowrap rounded-lg bg-[var(--accent)] px-4 text-sm font-semibold text-[var(--accent-fg)] shadow-sm transition hover:brightness-95 disabled:opacity-60 box-border leading-none"
             >
-              {loading ? "In..." : "In"}
+              {loading ? "IN..." : "IN"}
             </button>
           </form>
 
@@ -712,7 +715,7 @@ export default function ReceptionQrCheckinPage() {
               columns: { columnVisibilityModel: { host_name: true, email_status: false } },
             }}
           />
-          <p className="mt-3 text-xs text-[var(--text-3)]">In is enabled only when status is approved.</p>
+          <p className="mt-3 text-xs text-[var(--text-3)]">IN is enabled only when status is approved.</p>
         </Panel>
       </div>
     </DashboardLayout>

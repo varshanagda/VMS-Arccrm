@@ -8,6 +8,7 @@ export interface StatItem {
   value: string;
   delta: string;
   href?: string;
+  color?: "orange" | "sky" | "emerald" | "amber" | "default";
 }
 
 export interface StatusItem {
@@ -50,23 +51,48 @@ interface TextListProps {
 }
 
 export function StatGrid({ items }: StatGridProps) {
+  const getColorClasses = (color?: string) => {
+    switch (color) {
+      case "orange":
+        return "border-orange-500/30 bg-orange-500/5 shadow-[0_0_15px_rgba(249,115,22,0.05)]";
+      case "sky":
+        return "border-sky-500/30 bg-sky-500/5 shadow-[0_0_15px_rgba(14,165,233,0.05)]";
+      case "emerald":
+        return "border-emerald-500/30 bg-emerald-500/5 shadow-[0_0_15px_rgba(16,185,129,0.05)]";
+      case "amber":
+        return "border-amber-500/30 bg-amber-500/5 shadow-[0_0_15px_rgba(245,158,11,0.05)]";
+      default:
+        return "border-[var(--border-1)] bg-[var(--surface-1)] shadow-[var(--shadow-1)]";
+    }
+  };
+
+  const getLabelColor = (color?: string) => {
+    switch (color) {
+      case "orange": return "text-orange-400";
+      case "sky": return "text-sky-400";
+      case "emerald": return "text-emerald-400";
+      case "amber": return "text-amber-400";
+      default: return "text-[var(--text-3)]";
+    }
+  };
+
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {items.map((item) => (
         <article
           key={item.label}
-          className="rounded-2xl border border-[var(--border-1)] bg-[var(--surface-1)] p-4 shadow-[var(--shadow-1)] transition hover:-translate-y-0.5 sm:p-5"
+          className={`rounded-2xl border p-4 transition hover:-translate-y-0.5 sm:p-5 ${getColorClasses(item.color)}`}
         >
           {item.href ? (
             <Link href={item.href} className="block">
-              <p className="text-xs uppercase tracking-[0.15em] text-[var(--text-3)]">{item.label}</p>
-              <p className="mt-2 text-2xl font-semibold text-[var(--text-1)] sm:text-3xl">{item.value}</p>
+              <p className={`text-xs uppercase tracking-[0.15em] font-bold ${getLabelColor(item.color)}`}>{item.label}</p>
+              <p className="mt-2 text-2xl font-bold text-[var(--text-1)] sm:text-3xl">{item.value}</p>
               <p className="mt-1 text-sm text-[var(--accent)]">{item.delta}</p>
             </Link>
           ) : (
             <>
-              <p className="text-xs uppercase tracking-[0.15em] text-[var(--text-3)]">{item.label}</p>
-              <p className="mt-2 text-2xl font-semibold text-[var(--text-1)] sm:text-3xl">{item.value}</p>
+              <p className={`text-xs uppercase tracking-[0.15em] font-bold ${getLabelColor(item.color)}`}>{item.label}</p>
+              <p className="mt-2 text-2xl font-bold text-[var(--text-1)] sm:text-3xl">{item.value}</p>
               <p className="mt-1 text-sm text-[var(--accent)]">{item.delta}</p>
             </>
           )}
@@ -175,9 +201,11 @@ export function StatusList({ items, onItemClick }: StatusListProps) {
                     ? "border-amber-300/60 bg-amber-500/15 text-amber-400"
                     : item.status === "rejected" || item.status.toLowerCase().includes("rejected")
                       ? "border-red-300/60 bg-red-500/15 text-red-400"
-                      : item.status === "checked_in" || item.status.toLowerCase().includes("checked in")
-                        ? "border-orange-300/60 bg-orange-500/15 text-orange-400"
-                        : "border-slate-300/60 bg-slate-500/15 text-slate-400"
+                      : item.status === "checked_in" || item.status.toLowerCase().includes("checked in") || item.status.toUpperCase() === "IN"
+                        ? "border-orange-500/50 bg-orange-500/20 text-orange-400 font-bold shadow-[0_0_10px_rgba(249,115,22,0.15)]"
+                        : item.status === "checked_out" || item.status.toLowerCase().includes("checked out") || item.status.toUpperCase() === "OUT"
+                          ? "border-sky-500/50 bg-sky-500/20 text-sky-400 font-bold shadow-[0_0_10px_rgba(14,165,233,0.15)]"
+                          : "border-slate-300/60 bg-slate-500/15 text-slate-400"
               }`}
             >
               <span className="truncate">{item.status.replace(/_/g, " ")}</span>

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { Panel, StatGrid, StatusList } from "@/components/dashboard/panels";
+import { Panel, StatGrid, StatusList, type StatItem } from "@/components/dashboard/panels";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { DashboardPageHeader } from "@/components/layout/DashboardPageHeader";
 import Pagination from "@/components/ui/pagination";
@@ -45,10 +45,10 @@ export default function ReceptionDashboard() {
         return "border-amber-300/60 bg-amber-500/15 text-amber-400";
       case "rejected":
         return "border-red-300/60 bg-red-500/15 text-red-400";
-      case "checked_in":
-        return "border-orange-300/60 bg-orange-500/15 text-orange-400";
-      case "checked_out":
-        return "border-slate-300/60 bg-slate-500/15 text-slate-400";
+      case "IN":
+        return "border-orange-500/50 bg-orange-500/20 text-orange-400 font-bold shadow-[0_0_10px_rgba(249,115,22,0.15)]";
+      case "OUT":
+        return "border-sky-500/50 bg-sky-500/20 text-sky-400 font-bold shadow-[0_0_10px_rgba(14,165,233,0.15)]";
       default:
         return "border-[var(--border-1)] bg-[var(--surface-2)] text-[var(--text-2)]";
     }
@@ -64,7 +64,10 @@ export default function ReceptionDashboard() {
         ]);
 
         setHistory((prev) => {
-          const next = historyData ?? [];
+          const next = (historyData ?? []).map(item => ({
+            ...item,
+            status: item.status === "checked_in" ? "IN" : item.status === "checked_out" ? "OUT" : item.status
+          }));
           return JSON.stringify(prev) === JSON.stringify(next) ? prev : next;
         });
 
@@ -106,20 +109,20 @@ export default function ReceptionDashboard() {
     };
   }, [loadData, user]);
 
-  const stats = useMemo(() => {
+  const stats = useMemo<StatItem[]>(() => {
     const todayKey = new Date().toDateString();
     const isToday = (value?: string | null) =>
       value ? new Date(value).toDateString() === todayKey : false;
     const checkinsToday = history.filter((item) => isToday(item.checkin_time)).length;
     const checkoutsToday = history.filter((item) => isToday(item.checkout_time)).length;
     const pending = history.filter((item) => item.status === "pending").length;
-    const checkedInNow = history.filter((item) => item.status === "checked_in").length;
+    const checkedInNow = history.filter((item) => item.status === "IN").length;
     return [
-      { label: "In", value: String(checkinsToday), delta: "Today" },
-      { label: "Out", value: String(checkoutsToday), delta: "Today" },
-      { label: "Pending Approval", value: String(pending), delta: "Awaiting host" },
-      { label: "In Now", value: String(checkedInNow), delta: "Live" },
-    ];
+      { label: "IN", value: String(checkinsToday), delta: "Today", color: "orange" },
+      { label: "OUT", value: String(checkoutsToday), delta: "Today", color: "sky" },
+      { label: "Pending Approval", value: String(pending), delta: "Awaiting host", color: "amber" },
+      { label: "IN Now", value: String(checkedInNow), delta: "Live", color: "orange" },
+    ] as StatItem[];
   }, [history]);
 
   const queueItems = useMemo(() => {
@@ -140,21 +143,21 @@ export default function ReceptionDashboard() {
   const checklistItems = useMemo(() => {
     const pending = history.filter((item) => item.status === "pending").length;
     const approved = history.filter((item) => item.status === "approved").length;
-    const checkedIn = history.filter((item) => item.status === "checked_in").length;
-    const checkedOut = history.filter((item) => item.status === "checked_out").length;
+    const checkedIn = history.filter((item) => item.status === "IN").length;
+    const checkedOut = history.filter((item) => item.status === "OUT").length;
     return [
       { key: "pending" as const, label: "Pending approvals", count: pending },
       { key: "approved" as const, label: "Approved arrivals waiting", count: approved },
-      { key: "checked_in" as const, label: "Currently In", count: checkedIn },
-      { key: "checked_out" as const, label: "Out", count: checkedOut },
+      { key: "checked_in" as const, label: "Currently IN", count: checkedIn },
+      { key: "checked_out" as const, label: "OUT", count: checkedOut },
     ];
   }, [history]);
 
   const modalTitle = useMemo(() => {
     if (modalKey === "pending") return "Pending Approvals";
     if (modalKey === "approved") return "Approved Visitors";
-    if (modalKey === "checked_in") return "Currently In";
-    if (modalKey === "checked_out") return "Out Visitors";
+    if (modalKey === "checked_in") return "Currently IN";
+    if (modalKey === "checked_out") return "OUT Visitors";
     return "";
   }, [modalKey]);
 
@@ -187,7 +190,7 @@ export default function ReceptionDashboard() {
     <DashboardLayout user={user}>
       <DashboardPageHeader
         title="Reception Dashboard"
-        subtitle="Manage in/out, appointment flow, and visitor desk operations in real time."
+        subtitle="Manage IN/OUT, appointment flow, and visitor desk operations in real time."
       />
       <div className="mt-6">
         <StatGrid items={stats} />
@@ -316,7 +319,7 @@ export default function ReceptionDashboard() {
                                 item.status
                               )}`}
                             >
-                              {item.status === "checked_in" ? "In" : item.status === "checked_out" ? "Out" : item.status.replace("_", " ")}
+                              {item.status === "IN" ? "IN" : item.status === "OUT" ? "OUT" : item.status.replace("_", " ")}
                             </span>
                           </td>
                         </tr>

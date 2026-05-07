@@ -45,20 +45,20 @@ export default function ReceptionHistoryPage() {
         return "border-amber-300/60 bg-amber-500/15 text-amber-400";
       case "rejected":
         return "border-red-300/60 bg-red-500/15 text-red-400";
-      case "checked_in":
-        return "border-orange-300/60 bg-orange-500/15 text-orange-400";
-      case "checked_out":
-        return "border-slate-300/60 bg-slate-500/15 text-slate-400";
+      case "IN":
+        return "border-orange-500/50 bg-orange-500/20 text-orange-400 font-bold shadow-[0_0_10px_rgba(249,115,22,0.15)]";
+      case "OUT":
+        return "border-sky-500/50 bg-sky-500/20 text-sky-400 font-bold shadow-[0_0_10px_rgba(14,165,233,0.15)]";
       default:
         return "border-[var(--border-1)] bg-[var(--surface-2)] text-[var(--text-2)]";
     }
   };
   const statusLabel = (status: string) => {
-    if (status === "checked_in") return "In";
-    if (status === "checked_out") return "Out";
+    if (status === "checked_in" || status === "IN") return "IN";
+    if (status === "checked_out" || status === "OUT") return "OUT";
     return status.replace(/_/g, " ");
   };
-  const statusOptions = ["approved", "pending", "rejected", "checked_in", "checked_out"];
+  const statusOptions = ["approved", "pending", "rejected", "IN", "OUT"];
 
   useEffect(() => {
     if (!user) return;
@@ -69,7 +69,11 @@ export default function ReceptionHistoryPage() {
     setLoading(true);
     try {
       const data = await apiFetch<VisitHistoryItem[]>("/visit/history");
-      setHistory(data);
+      const mappedData = data.map(item => ({
+        ...item,
+        status: item.status === "checked_in" ? "IN" : item.status === "checked_out" ? "OUT" : item.status
+      }));
+      setHistory(mappedData);
       setMessage("");
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Failed to load history");
@@ -156,7 +160,7 @@ export default function ReceptionHistoryPage() {
     },
     {
       field: "checkin_time",
-      headerName: "In",
+      headerName: "IN",
       flex: 1,
       minWidth: 180,
       filterable: false,
@@ -171,7 +175,7 @@ export default function ReceptionHistoryPage() {
     },
     {
       field: "checkout_time",
-      headerName: "Out",
+      headerName: "OUT",
       flex: 1,
       minWidth: 180,
       filterable: false,
@@ -240,7 +244,7 @@ export default function ReceptionHistoryPage() {
       <div className="space-y-3">
         <EntryDeskHeader
           title="Visit History"
-          subtitle="Track in and out with captured photos."
+          subtitle="Track IN and OUT with captured photos."
         />
 
         <Panel title="History (Photo)" className="overflow-hidden">

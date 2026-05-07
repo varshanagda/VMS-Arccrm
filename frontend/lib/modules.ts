@@ -22,10 +22,10 @@ export const MODULES: ModuleConfig[] = [
   { id: "reception-register", label: "Register", path: "/guard/register", role: ["guard"] },
   { id: "reception-photo", label: "Photo", path: "/guard/photo", role: ["guard"] },
   { id: "reception-host", label: "Host", path: "/guard/host", role: ["guard"] },
-  { id: "reception-checkin", label: "In", path: "/guard/qr-checkin", role: ["guard"] },
+  { id: "reception-checkin", label: "IN", path: "/guard/qr-checkin", role: ["guard"] },
   { id: "reception-qr-scanner", label: "QR Scanner", path: "/guard/qr-scanner", role: ["guard"] },
   { id: "reception-qr-visitor", label: "QR Visitor", path: "/guard/qr-visitor", role: ["guard"] },
-  { id: "reception-checkout", label: "Out", path: "/guard/manual-checkout", role: ["guard"] },
+  { id: "reception-checkout", label: "OUT", path: "/guard/manual-checkout", role: ["guard"] },
   { id: "reception-history", label: "History", path: "/guard/history", role: ["guard"] },
 
   // Employee Modules

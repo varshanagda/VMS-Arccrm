@@ -30,10 +30,10 @@ function statusBadgeClass(status: string) {
       return "border-amber-300/60 bg-amber-500/15 text-amber-400";
     case "rejected":
       return "border-red-300/60 bg-red-500/15 text-red-400";
-    case "checked_in":
-      return "border-orange-300/60 bg-orange-500/15 text-orange-400";
-    case "checked_out":
-      return "border-slate-300/60 bg-slate-500/15 text-slate-400";
+    case "IN":
+      return "border-orange-500/50 bg-orange-500/20 text-orange-400 font-bold shadow-[0_0_10px_rgba(249,115,22,0.15)]";
+    case "OUT":
+      return "border-sky-500/50 bg-sky-500/20 text-sky-400 font-bold shadow-[0_0_10px_rgba(14,165,233,0.15)]";
     default:
       return "border-[var(--border-1)] bg-[var(--surface-2)] text-[var(--text-2)]";
   }
@@ -47,27 +47,31 @@ export function TodaysChecklistPanel({ history, hostMap }: TodaysChecklistPanelP
   const checklistItems = useMemo(() => {
     const pending = history.filter((item) => item.status === "pending").length;
     const approved = history.filter((item) => item.status === "approved").length;
-    const checkedIn = history.filter((item) => item.status === "checked_in").length;
-    const checkedOut = history.filter((item) => item.status === "checked_out").length;
+    const checkedIn = history.filter((item) => item.status === "checked_in" || item.status === "IN").length;
+    const checkedOut = history.filter((item) => item.status === "checked_out" || item.status === "OUT").length;
     return [
       { key: "pending" as const, label: "Pending approvals", count: pending },
       { key: "approved" as const, label: "Approved arrivals waiting", count: approved },
-      { key: "checked_in" as const, label: "Currently In", count: checkedIn },
-      { key: "checked_out" as const, label: "Out", count: checkedOut },
+      { key: "checked_in" as const, label: "Currently IN", count: checkedIn },
+      { key: "checked_out" as const, label: "OUT", count: checkedOut },
     ];
   }, [history]);
 
   const modalTitle = useMemo(() => {
     if (modalKey === "pending") return "Pending Approvals";
     if (modalKey === "approved") return "Approved Visitors";
-    if (modalKey === "checked_in") return "Currently In";
-    if (modalKey === "checked_out") return "Out Visitors";
+    if (modalKey === "checked_in") return "Currently IN";
+    if (modalKey === "checked_out") return "OUT Visitors";
     return "";
   }, [modalKey]);
 
   const modalRows = useMemo(() => {
-    if (!modalKey) return [];
-    return history.filter((item) => item.status === modalKey).sort((a, b) => b.visit_id - a.visit_id);
+    const rows = history.filter((item) => {
+      if (modalKey === "checked_in") return item.status === "checked_in" || item.status === "IN";
+      if (modalKey === "checked_out") return item.status === "checked_out" || item.status === "OUT";
+      return item.status === modalKey;
+    });
+    return rows.sort((a, b) => b.visit_id - a.visit_id);
   }, [history, modalKey]);
 
   const modalTotalPages = Math.max(1, Math.ceil(modalRows.length / modalPageSize));
@@ -175,7 +179,7 @@ export function TodaysChecklistPanel({ history, hostMap }: TodaysChecklistPanelP
                           </td>
                           <td className="py-4">
                             <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusBadgeClass(item.status)}`}>
-                              {item.status === "checked_in" ? "In" : item.status === "checked_out" ? "Out" : item.status.replace("_", " ")}
+                              {item.status === "checked_in" ? "IN" : item.status === "checked_out" ? "OUT" : item.status.replace("_", " ")}
                             </span>
                           </td>
                         </tr>

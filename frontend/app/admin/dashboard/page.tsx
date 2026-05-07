@@ -36,10 +36,10 @@ function statusBadgeClass(status: string) {
       return "border-amber-300/60 bg-amber-500/15 text-amber-400";
     case "rejected":
       return "border-red-300/60 bg-red-500/15 text-red-400";
-    case "checked_in":
-      return "border-orange-300/60 bg-orange-500/15 text-orange-400";
-    case "checked_out":
-      return "border-slate-300/60 bg-slate-500/15 text-slate-400";
+    case "IN":
+      return "border-orange-500/50 bg-orange-500/20 text-orange-400 font-bold shadow-[0_0_10px_rgba(249,115,22,0.15)]";
+    case "OUT":
+      return "border-sky-500/50 bg-sky-500/20 text-sky-400 font-bold shadow-[0_0_10px_rgba(14,165,233,0.15)]";
     default:
       return "border-[var(--border-1)] bg-[var(--surface-2)] text-[var(--text-2)]";
   }
@@ -79,7 +79,10 @@ export default function AdminDashboard() {
       ]);
 
       setHistory((prev) => {
-        const next = historyData ?? [];
+        const next = (historyData ?? []).map(item => ({
+          ...item,
+          status: item.status === "checked_in" ? "IN" : item.status === "checked_out" ? "OUT" : item.status
+        }));
         return JSON.stringify(prev) === JSON.stringify(next) ? prev : next;
       });
 
@@ -125,9 +128,9 @@ export default function AdminDashboard() {
     const checkedOutVisitors = summary?.checked_out_visitors ?? 0;
     const pendingApprovals = summary?.pending_approvals ?? 0;
     return [
-      { label: "Visitors Today", value: String(visitorsToday), change: "Today", color: "text-sky-400", bg: "bg-sky-500/15" },
-      { label: "In", value: String(checkedInVisitors), change: "Live", color: "text-[var(--accent)]", bg: "bg-[var(--nav-active-bg)]" },
-      { label: "Out", value: String(checkedOutVisitors), change: "Today", color: "text-emerald-400", bg: "bg-emerald-500/15" },
+      { label: "Visitors Today", value: String(visitorsToday), change: "Today", color: "text-emerald-400", bg: "bg-emerald-500/15" },
+      { label: "IN", value: String(checkedInVisitors), change: "Live", color: "text-orange-400", bg: "bg-orange-500/15" },
+      { label: "OUT", value: String(checkedOutVisitors), change: "Today", color: "text-sky-400", bg: "bg-sky-500/15" },
       { label: "Pending Approvals", value: String(pendingApprovals), change: "Awaiting host", color: "text-amber-400", bg: "bg-amber-500/15" },
     ] as const;
   }, [summary]);
@@ -142,7 +145,7 @@ export default function AdminDashboard() {
       const isCheckedOut = item.status === "checked_out";
       const visitTime = isCheckedOut ? formatTime(item.checkout_time ?? item.checkin_time) : formatTime(item.checkin_time);
       const photo = resolveApiAssetUrl(item.photo_url);
-      const statusLabel = item.status === "checked_in" ? "In" : item.status === "checked_out" ? "Out" : item.status.replace("_", " ");
+      const statusLabel = item.status === "checked_in" ? "IN" : item.status === "checked_out" ? "OUT" : item.status.replace("_", " ");
       return { name: item.visitor_name, visitTime, status: item.status, statusLabel, photo };
     });
   }, [summary]);

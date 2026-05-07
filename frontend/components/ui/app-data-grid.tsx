@@ -247,7 +247,7 @@ function AppGridFilterPanel<R>({
   };
 
   return (
-    <div className="space-y-6 px-5 py-5">
+    <div className="space-y-6 px-5 pt-5 pb-48">
       <div className="flex items-center justify-between border-b border-white/10 pb-4">
         <div>
           <h3 className="text-sm font-semibold text-[var(--text-1)]">Filters</h3>
