@@ -19,7 +19,7 @@ function applyThemeToDom(theme: AppTheme) {
   document.documentElement.dataset.theme = theme;
 }
 
-export function ThemeProvider({ children, defaultTheme = "light" }: { children: ReactNode; defaultTheme?: AppTheme }) {
+export function ThemeProvider({ children, defaultTheme = "dark" }: { children: ReactNode; defaultTheme?: AppTheme }) {
   const [theme, setThemeState] = useState<AppTheme>(() => {
     if (typeof localStorage !== "undefined") {
       try {

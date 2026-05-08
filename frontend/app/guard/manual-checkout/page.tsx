@@ -149,7 +149,7 @@ export default function ManualCheckoutPage() {
             type="button"
             disabled={loading}
             onClick={() => setIdCardNumber(String(params.row.id_number ?? ""))}
-            className="rounded-md bg-[var(--accent)] px-3 py-1 text-xs font-semibold text-[var(--accent-fg)] shadow-sm transition hover:brightness-95 disabled:opacity-60"
+            className="rounded-md bg-orange-500 px-3 py-1 text-xs font-bold text-white shadow-md transition hover:bg-orange-600 disabled:opacity-60"
           >
             Load
           </button>

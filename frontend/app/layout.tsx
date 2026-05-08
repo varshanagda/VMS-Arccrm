@@ -16,7 +16,7 @@ const themeInitScript = `
 (() => {
   try {
     const stored = localStorage.getItem("vms_theme");
-    const theme = stored === "dark" || stored === "light" ? stored : "light";
+    const theme = stored === "dark" || stored === "light" ? stored : "dark";
     document.documentElement.dataset.theme = theme;
   } catch {}
 })();
@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <ThemeProvider>
